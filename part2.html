@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фармацевтический тест — Часть 2 (201–400)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; line-height: 1.6; }
+        .top-nav { background: #1a365d; padding: 12px 0; text-align: center; position: sticky; top: 0; z-index: 100; }
+        .top-nav a, .top-nav span { display: inline-block; padding: 8px 18px; margin: 0 5px; border-radius: 6px; font-weight: 500; text-decoration: none; color: #fff; background: #2b6cb0; transition: 0.2s; }
+        .top-nav a:hover { background: #3182ce; }
+        .top-nav span.active { background: #38a169; cursor: default; }
+        .top-nav span.disabled { background: #4a5568; cursor: not-allowed; opacity: 0.7; }
+        .container { max-width: 950px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #1a365d; margin: 20px 0 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: #718096; margin-bottom: 30px; font-size: 16px; }
+        .question-block { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #3182ce; transition: 0.3s; }
+        .question-block.correct { border-left-color: #38a169; background: #f0fff4; }
+        .question-block.incorrect { border-left-color: #e53e3e; background: #fff5f5; }
+        .q-num { font-weight: 700; color: #3182ce; margin-right: 8px; }
+        .q-text { font-weight: 500; margin-bottom: 14px; font-size: 16px; }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fafafa; }
+        .option:hover { border-color: #3182ce; background: #ebf8ff; }
+        .option input[type="radio"], .option input[type="checkbox"] { display: none; }
+        .option-letter { width: 32px; height: 32px; border-radius: 50%; background: #edf2f7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #4a5568; flex-shrink: 0; transition: 0.2s; }
+        .option.selected .option-letter { background: #3182ce; color: #fff; }
+        .option.correct-highlight { border-color: #38a169; background: #f0fff4; }
+        .option.correct-highlight .option-letter { background: #38a169; color: #fff; }
+        .option-text { flex: 1; }
+        .feedback { margin-top: 10px; padding: 8px 14px; border-radius: 6px; font-weight: 500; font-size: 14px; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct-fb { background: #c6f6d5; color: #22543d; }
+        .feedback.incorrect-fb { background: #fed7d7; color: #742a2a; }
+        .btn-group { text-align: center; margin: 30px 0; }
+        .btn { padding: 14px 40px; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; margin: 0 8px; }
+        .btn-reset { background: #e2e8f0; color: #4a5568; }
+        .btn-reset:hover { background: #cbd5e0; }
+        .result { text-align: center; font-size: 22px; font-weight: 700; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="part1.html">Часть 1</a>
+    <a href="part2.html">Часть 2</a>
+    <a href="part3.html">Часть 2</a>
+    <a href="part4.html">Часть 2</a>
+    <a href="part5.html">Часть 2</a>
+</div>
+
+<div class="container">
+    <h1>🧪 Фармацевтический тест</h1>
+    <p class="subtitle">Часть 2 • Вопросы 201–400 • Мгновенная проверка</p>
+
+    <div id="questions-container"></div>
+
+    <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetAll()">🔄 Сбросить все ответы</button>
+    </div>
+    <div class="result" id="global-result"></div>
+</div>
+
+<script>
+const questions = [
+    { q: "«Фосфат эритромицина» по-латински:", opts: ["Phosphas Erythromycini", "Erytromycini phosphas", "Erythromicini phosphas", "Erythromycini phosphas"], ans: 3 },
+    { q: "Выберите соответствующий суффикс аниона в названии соли -- «сульфат атропина» Atropini sulf...:", opts: ["atis", "is", "as", "idum"], ans: 2 },
+    { q: "Допишите название катиона соли -- ... hydrochloridum:", opts: ["Morphinum", "Morphini", "Morfinum", "Morphyni"], ans: 1 },
+    { q: "Допишите название соли -- Natrii (бензоат):", opts: ["benzoatis", "benzoatum", "benzonas", "benzoas"], ans: 3 },
+    { q: "Выберите правильный перевод названия соли «раствор основного ацетата свинца»:", opts: ["solutio Plumbi acetatis basillaris", "solutionis Plumbi subacetas", "solutio Plumbi subacetatis", "solutionis Plumbi subacetatis"], ans: 2 },
+    { q: "Допишите окончание в термине «Chymotrypsinum crystallis...»:", opts: ["-atus", "-atum", "-as", "-um"], ans: 1 },
+    { q: "Словосочетанию «Верхушка каменистой части» соответствует:", opts: ["apex partis petrōsae", "apex petrōsae partis", "apex petrōsis partis", "apex partae petrōsae"], ans: 0 },
+    { q: "Словосочетанию «Поперечная связка первого шейного позвонка» соответствует:", opts: ["ligamentis transversis atlantis", "ligamentum atlantis transversum", "transversum ligamentum atlantis", "ligamentum transversum atlantum"], ans: 1 },
+    { q: "Словосочетанию «Капсула височнонижнечелюстного сустава» соответствует:", opts: ["capsŭlis articulatiōnis temporomandibulāris", "capsŭlae articulatiōnes temporomandibulāres", "capsŭla temporomandibulāris articulatiōnis", "capsŭla articulatiōnis temporomandibulāris"], ans: 3 },
+    { q: "Словосочетанию «Мышца, опускающая угол рта» соответствует:", opts: ["Músculus depressor ángulis oris", "Músculus depressor ángulus oris", "Músculus depressor ánguli oris", "Músculus depressor ángulum oris"], ans: 2 },
+    { q: "Словосочетанию «Мышца, поднимающая перегородку носа» соответствует:", opts: ["Músculus cremastеr nasi septum", "Músculus cremastеr septi nasi", "Músculus cremastus septi nasi", "Músculus cremastеr septum nasi"], ans: 1 },
+    { q: "Словосочетанию «Короткий лучевой разгибатель запястья» соответствует:", opts: ["Brevis radialis extensor carpi", "Musculus extensor carpus radialis brevis", "Extensor carpis radialis brevis", "Musculus extensor carpi radialis brevis"], ans: 3 },
+    { q: "Словосочетанию «Мышца, поднимающая мягкое небо» соответствует:", opts: ["Musculus levator palatum molle", "Musculus levator palati molli", "Musculus levator palati mollis", "Musculus levator mollis palatis"], ans: 2 },
+    { q: "Словосочетанию «Мышца, опускающая перегородку носа» соответствует:", opts: ["Musculus depressor septum nasi", "Musculus depressor septi nasi", "Musculus depressor septi nasus", "Musculus depressor septum nasum"], ans: 1 },
+    { q: "Словосочетанию «Срединный небный шов» соответствует:", opts: ["Sutura palatina mediana", "Suturaе palatinaе medianaе", "Palatina mediana sutura", "Mediana palatina sutura"], ans: 0 },
+    { q: "Словосочетанию «Перелом правой плечевой кости» соответствует:", opts: ["Fractura dextra humĕri", "Fracturae humĕri dextri", "Fractura humĕri dextri", "Fractura humĕri sinistri"], ans: 2 },
+    { q: "Словосочетанию «Недостаточность cтворок клапанов аорты» соответствует:", opts: ["Insufficientia valvulae aortae", "Insufficientia valvularum aortae", "Рrominentia valvularum aortae", "Insufficientia valvularum valvulae aortae"], ans: 1 },
+    { q: "Словосочетанию «Рак пищевода это злокачественная болезнь» соответствует:", opts: ["Cancer oesophagus mor­bus malignus est", "Cancer oesophagi mor­bus malignus", "Cancer oesophagi mor­bus molestus est", "Cancer oesophagi mor­bus malignus est"], ans: 3 },
+    { q: "Словосочетанию «Вазелиновое масло и камфорное масло это лекарственные средства» соответствует:", opts: ["Vaseini оleum et camphoratum oleum remedia sunt", "Oleum Vaseini et oleum camphoratum remedium sunt", "Oleum Vaseini et oleum camphoratum remedia sunt", "Oleum Vaseini et oleum camphoratum remedia est"], ans: 2 },
+    { q: "Словосочетанию «Таблетки тетрациклина и нистатина, покрытые оболочкой» соответствует:", opts: ["Tabulettae Tetracyclinum et Nystatinum obductum", "Tabulettae Tetracyclini et Nystatini obductae", "Tabulettas Tetracyclini et Nystatini obductas", "Tabulettae «Tetracyclini et Nystatini» obductae"], ans: 1 },
+    { q: "Словосочетанию «Выдай камфорное масло в темной склянке» соответствует:", opts: ["Da oleum camphoratum in vitrо nigrо", "Detur oleum camphoratum in vitris nigris", "Da oleo camphorato in vitro nigro", "Da olei camphorati in vitro nigro"], ans: 0 },
+    { q: "Словосочетанию «Эрозия шейки матки» соответствует:", opts: ["Erosiа cervicis uteri", "Erosio colli utĕri", "Erosio cervicis utĕri", "Erosio cervix utĕri"], ans: 2 },
+    { q: "Словосочетанию «Вскрытие спинного мозга» соответствует:", opts: ["Sectio medullae spinalае", "Sectiones medullа spinalis", "Sectio medullae dorsalis", "Sectio medullae spinalis"], ans: 3 },
+    { q: "Словосочетанию «Перепончатая часть мужской уретры» соответствует:", opts: ["Pars membranaceus urethrae masculinae", "Pars membranacea urethrae masculinae", "Pars membranaceum urethrae masculinae", "Membranacea pars masculinae urethrae"], ans: 1 },
+    { q: "Словосочетанию «Кесарево сечение» соответствует:", opts: ["Sectio caesarea", "Ruptura cervicis", "Ruptura cervix", "Sectionis caesarea"], ans: 0 },
+    { q: "Словосочетанию «Нашатырный спирт» соответствует:", opts: ["Liquor Ammonii anisati", "Solutio Ammonii anisati", "Solutio Ammonii caustici", "Liquor Ammonii caustici"], ans: 2 },
+    { q: "Словосочетанию «Сухой экстракт мужского папоротника» соответствует:", opts: ["Extractum Filiх mas spissum", "Extractum Filicis maris spissum", "Extracti Filicis maris spissi", "Extractum Filicis masculinum spissum"], ans: 1 },
+    { q: "Словосочетанию «Жидкий экстракт алоэ для инъекций» соответствует:", opts: ["Extractum Aloe fluidum pro injectionibum", "Extractum Aloes fluidum pro injectiones", "Fluidum extractum Aloes pro injectionibus", "Extractum Aloes fluidum pro injectionibus"], ans: 3 },
+    { q: "Словосочетанию «Возьми достаточное количество масляной эмульсии» соответствуют:", opts: ["Recipe emulsionis oleosis quantum satis", "Recipe emulsi oleosi quantum satis", "Recipe quantum satis emulsio oleosa", "Recipe emulsionis oleosae quantum satis"], ans: [1, 3] },
+    { q: "Словосочетанию «Настой листьев наперстянки» соответствует:", opts: ["Infusum foliorum Digitalis", "Infusum folium Digitalis", "Decoctum foliorum Digitalis", "Tinctura foliorum Digitalis"], ans: 0 },
+    { q: "Словосочетанию «Возьми синтомицинового линимента с новокаином» соответствует:", opts: ["Recipere linimenti Synthomycini cum Novocaino", "Recipe linimentum Synthomycini cum Novocaini", "Recipe linimenti Synthomycini cum Novocaino", "Recipe Synthomycini linimenti cum Novocaini"], ans: 2 },
+    { q: "Словосочетанию «Возьми таблетки седальгина числом 20» соответствует:", opts: ["Recipe: Tabulettas \"Sedalginum\" numero 20", "Recipe tabulettas \"Sedalgini\" numero 20", "Recipe tabulettae Sedalginum numero 20", "Recipe tabulettas Sedalgini numero 20"], ans: 3 },
+    { q: "Словосочетанию «Нашатырно анисовые капли» соответствует:", opts: ["Liquor Ammonii anisati", "Guttae Ammonii anisati", "Solutio Ammonii caustici", "Liquor Ammonii caustici"], ans: 0 },
+    { q: "Выберите термины с несогласованным определением:", opts: ["basis externa", "angulus sterni", "ligamentum transversum", "os thoracis", "os ethmoidale"], ans: [1, 3] },
+    { q: "В термине \"тело малоберцовой кости\" -- \"corpus fibul...\" существительное заканчивается на:", opts: ["-- ae", "-- i", "-- is", "-- us"], ans: 0 },
+    { q: "В термине \"глазное яблоко\" -- \"bulbus ocul...\" существительное заканчивается на:", opts: ["-- ae", "-- i", "-- is", "-- us"], ans: 1 },
+    { q: "В термине \"верхушка легкого\" -- \"apex pulmon...\" существительное заканчивается на:", opts: ["-- is", "-- e", "-- es", "-- um"], ans: 0 },
+    { q: "В термине \"мышцы, поднимающие ребра\" musculi levatores cost... существительное заканчивается на:", opts: ["-- arum", "-- erum", "-- orum", "-- um"], ans: 3 },
+    { q: "В термине \"связки пальцев\" -- ligamenta digit... существительное заканчивается на:", opts: ["-- a", "-- i", "-- orum", "-- um"], ans: 2 },
+    { q: "В термине \"костный мозг\"- \"medulla oss...\" существительное заканчивается на:", opts: ["-- um", "-- ium", "-- uum", "-- erum"], ans: 1 },
+    { q: "В термине \"синусы аорты\"- «sin... aortae» существительное заканчивается на:", opts: ["-- a", "-- um", "-- ua", "-- us"], ans: 3 },
+    { q: "В термине \"перегородка пазух\" -- septum sin... существительное заканчивается на:", opts: ["-- orum", "-- um", "-- uum", "-- us"], ans: 2 },
+    { q: "В термине \"костная перегородка носа\" -- \"septum nasi osse...\" у прилагательного окончание:", opts: ["-- a", "-- is", "-- us", "-- um"], ans: 3 },
+    { q: "В термине \"в правом глазу\" -- \"in oculo dextr...\" у прилагательного окончание:", opts: ["-- i", "-- um", "-- o", "-- orum"], ans: 2 },
+    { q: "В термине \"глубокая часть\" -- \"pars profund...\" у прилагательного окончание:", opts: ["-- us", "-- a", "-- um", "-- is"], ans: 1 },
+    { q: "В термине \"внутренние стенки\" -- \"parietes intern...\" у прилагательного окончание:", opts: ["-- ae", "-- i", "-- is", "-- es"], ans: 1 },
+    { q: "В термине \"скуловые кости\" -- \"ossa zygomatic...\" у прилагательного окончание:", opts: ["-- a", "-- ae", "-- ia", "-- ua"], ans: 0 },
+    { q: "В термине «подъязычный нерв» - «nervus ...» употребляется прилагательное:", opts: ["hypoglossus", "sublingualis", "hyoideus", "hypolingualis"], ans: 0 },
+    { q: "В термине «подъязычная кость» - os ... употребляется прилагательное:", opts: ["hypoglossum", "sublinguale", "hyoideum", "hypolingualis"], ans: 2 },
+    { q: "В термине \"резцы\" -- \"dentes incisiv...\" прилагательное заканчивается на:", opts: ["-- a", "-- es", "-- i", "-- is"], ans: 2 },
+    { q: "В термине \"остистое отверстие\" -- \"foramen spinos...\" прилагательное заканчивается на:", opts: ["-- i", "-- a", "-- um", "-- is"], ans: 2 },
+    { q: "В термине \"поперечные отростки\" - \"processus transvers...\" прилагательное имеет окончание:", opts: ["-- a", "-- es", "-- i", "-- us"], ans: 2 },
+    { q: "В термине \"пазуха полых вен\" -- \" sinus venarum cav...\" прилагательное имеет окончание:", opts: ["-- e", "-- arum", "-- orum", "-- erum"], ans: 1 },
+    { q: "Укажите правильную последовательность слов в термине \"мышца, поднимающая щитовидную железу\":", opts: ["musculus levator glandulae thyroideae", "musculus levator glandula thyroidea", "musculus levator thyroideam glandulam", "musculus levator thyroideaarum glandularum"], ans: 0 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"резцовое отверстие небного отростка\":", opts: ["foramen incisiva processus palatinus", "foramen incisivi palatini processus", "foramen incisivum processus palatini", "foramen incisivus processus palatini"], ans: 2 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"синус полых вен правого предсердия\":", opts: ["sinus venae cavae atrii dextri", "sinus venarum cavarum atrium dextrum", "sinus cavarum venarum dextri atrii", "sinus venarum cavarum atrii dextri"], ans: 3 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"костный лабиринт внутреннего уха\":", opts: ["osseus labyrinthus internae auris", "labyrinthus osseus auris internae", "labyrinthus osseus auris internis", "labyrinthus osseis auris internis"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"сумки средней ягодичной мышцы\":", opts: ["bursae medii glutei musculi", "bursa musculus gluteus media", "bursae musculi glutei medii", "bursae glutei medii musculorum"], ans: 2 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"наружная косая мышца живота\":", opts: ["externus obliquus musculum abdominis", "musculus obliquus externus abdomen", "musculus abdominis obliquis externis", "musculus abdominis obliquus externus"], ans: 3 },
+    { q: "В термине \"спинной мозг\" -- \"medulla spinal...\" прилагательное заканчивается на:", opts: ["-- a", "-- ia", "-- is", "-- e"], ans: 2 },
+    { q: "В термине \"крестцовые кости\" -- \"ossa ... \" употребляется прилагательное:", opts: ["sacralis", "sarcale", "sacrales", "sacralia"], ans: 3 },
+    { q: "В термине \"лобный бугор\" -- \"tuber ... \" употребляется прилагательное:", opts: ["frontale", "frontales", "frontalia", "frontalium"], ans: 0 },
+    { q: "В термине \"латеральные поверхности\" -- \"facies lateral... \" у прилагательного окончание:", opts: ["-- es", "-- is", "-- ium", "-- ia"], ans: 0 },
+    { q: "В термине \"крестцовые рожки\" -- \"cornua sacral... \" у прилагательного окончание:", opts: ["-- a", "-- e", "-- ia", "-- ium"], ans: 2 },
+    { q: "В термине \"ость клиновидной кости\" -- \"spina ossis sphenoidal... \" у прилагательного окончание:", opts: ["-- e", "-- i", "-- is", "-- ium"], ans: 2 },
+    { q: "В термине \"позвоночные суставы\" -- \"articulationes vertebral...\" прилагательное заканчивается:", opts: ["-- a", "-- ae", "-- es", "-- i"], ans: 2 },
+    { q: "В термине «овальное отверстие» -- \"foramen oval...\" у прилагательного окончание:", opts: ["-- ia", "-- e", "-- um", "-- us"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"короткая мышца, отводящая большой палец руки\":", opts: ["musculus brevis digiti manus adductor", "musculus pollicis manus adductor brevis", "musculus digiti manus abductor brevis", "musculus pollicis manus abductor brevis"], ans: 3 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"короткая головка двуглавой мышцы плечевой кости\":", opts: ["capitis brevis musculi humeri bicipitis", "caput breve musculi humeri biceps", "caput breve musculi humeri bicipitis", "caput brevis musculi humeri bicipitis"], ans: 2 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"вырезка хряща слухового хода\":", opts: ["incisura cartilagina meatus acusticus", "incisura cartilaginis meatus acustici", "incisura cartilaginis acusticus meatus", "incisura meatus acusticis cartilaginis"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине: \"поверхностные сгибатели пальцев кисти\":", opts: ["M. flexores digitorum manus superficiales", "M. flexores digiti manus superficiales", "M. flexor digitorum manus superficialis", "M. flexores superficiales digitus manus"], ans: 0 },
+    { q: "В термине \"передние связки\" -- \"ligamenta anterior...\" прилагательное имеет окончание:", opts: ["-- a", "-- es", "-- ia", "-- ius"], ans: 0 },
+    { q: "В термине «верхнее отверстие» -- \"foramen ... \" употребляется прилагательное:", opts: ["inferior", "inferius", "superior", "superius"], ans: 3 },
+    { q: "В термине \"задняя поверхность\" -- \"facies... \" употребляется прилагательное:", opts: ["anterior", "posterior", "inferior", "superior"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"нижняя связка головки малоберцовой кости\":", opts: ["inferius ligamentus capitis fibulae", "ligamentum capitis inferius fibulae", "ligamentum capitis inferior fibula", "ligamenta capitis inferius fibula"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"задний кожный нерв плеча\":", opts: ["nervus brachius cutaneus posterius", "nervus brachii cutanei posterior", "nervus brachii cutaneus posterior", "cutaneus posterior nervi brachii"], ans: 2 },
+    { q: "Отметить верные соответствия:", opts: ["musculus adductor -- мышца приводящая", "musculus abductor -- мышца отводящая", "musculus sphincter -- мышца сгибатель", "musculus flexor -- мышца сжиматель"], ans: [0, 1] },
+    { q: "Отметить верные соответствия:", opts: ["musculus levator -- мышца поднимающая", "mesculus tensor -- мышца вращающая", "musculus rotator -- мышца расширяющая", "musculus depressor -- мышца опускающая"], ans: [0, 3] },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"передняя глубокая височная артерия\":", opts: ["arteriae temporale profundae anterior", "arteria temporalis profunda anterior", "arteria anterior profunda temporale", "arteria temporalis profundis anterior"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине «верхняя сумка двуглавой мышцы бедра»:", opts: ["bursa superior musculis femoris bicipitis", "bursa superior musculi femoris biceps", "bursa superius musculus femoris bicipitis", "bursa superior musculi femoris bicipitis"], ans: 3 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине \"нижний край левого легкого\":", opts: ["margo inferius pulmonis sinistri", "margo inferior pulmo sinister", "margo inferior pulmonis sinistri", "inferior margo dexstri pulmonis"], ans: 2 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине: \"сумка широчайшей мышцы спины\":", opts: ["bursa musculi dorsi latissimi", "bursa latissima musculi dorsi", "bursa musculi dorsi latissima", "bursa musculus dorsum latissimus"], ans: 0 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине \"малый рог подъязычной кости\":", opts: ["cornu parvus osis hyoidei", "cornu minus ossis hyoidei", "cornu minus ossis hyoideus", "cornu minus ossis hyoideis"], ans: 1 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине \"седалищная сумка наибольшей ягодичной мышцы\":", opts: ["ischiadica bursa glutaei maximi musculi", "bursae ischiadicae musculi glutaei maximi", "bursa ischiadica musculus glutaeus maximus", "bursa ischiadica musculi glutaei maximi"], ans: 3 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине \"нижняя луковица внутренней яремной вены\":", opts: ["inferius bulbus internae jugularis venae", "bulbus inferius venae jugularis internae", "bulbus inferior venae jugularis internae", "bulbus inferior venae jugularae internae"], ans: 2 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине \"синовиальные влагалища сухожилий пальцев кисти\":", opts: ["vagina sinovialis tendinum digitorum manus", "sinoviales vaginae tendinis digitorum manus", "sinovialis vaginae tendinum digitorum manus", "vaginae sinoviales tendinum digitorum manus"], ans: 3 },
+    { q: "К какой группе средств относится препарат \"седуксен\"?:", opts: ["болеутоляющее", "ноотропное", "сердечное", "успокаивающее"], ans: 3 },
+    { q: "Апрессин оказывает действие:", opts: ["бронхолитическое", "гипертензивное", "гипотензивное", "желчегонное"], ans: 2 },
+    { q: "Выберите препарат женских половых гормонов:", opts: ["Aethinyloestradiolum", "Hydrocortisonum", "Euthyrox", "Testoenatum"], ans: 0 },
+    { q: "Выберите препарат мужских половых гормонов:", opts: ["Methyloestradiolum", "Prednisolonum", "Phenobolilum", "Testoenatum"], ans: 3 },
+    { q: "Выберите препарат гормонов щитовидной железы:", opts: ["Ciproteronum", "Euthyrox", "Dexamethazonum", "Desaminooxytocinum"], ans: 1 },
+    { q: "Лекарственное средство, понижающее содержание сахара в крови:", opts: ["Remedium haemostaticum", "Remedium hyperglycaemicum", "Remedium hypoglycaemicum", "Remedium thyreostaticum"], ans: 2 },
+    { q: "Характер терапевтического действия сбора \"species laxantes\":", opts: ["ароматический", "диуретический", "желчегонный", "слабительный"], ans: 3 },
+    { q: "Характер терапевтического действия сбора \"species cholagogae\":", opts: ["аппетитный", "диуретический", "желчегонный", "слабительный"], ans: 2 },
+    { q: "Характер терапевтического действия сбора \"species pectorales\":", opts: ["диуретический", "желчегонный", "отхаркивающий", "успокаивающий"], ans: 2 },
+    { q: "Характер терапевтического действия сбора \"species diureticae\":", opts: ["желчегонный", "мочегонный", "отхаркивающий", "слабительный"], ans: 1 },
+    { q: "Укажите соответствие частотных отрезков фармакологическим группам:", opts: ["Mycoheptinum -- противогрибковое средство", "Phthivazidum -- противовирусное средство", "Ribavirinum -- противотуберкулезное средство", "Vermox -- противоглистное средство"], ans: [0, 3] },
+    { q: "Укажите соответствие частотных отрезков фармакологическим группам:", opts: ["Captoprilum -- гипотензивное средство", "Cordaronum -- влияющий на сердечную мышцу", "Isobarinum -- противокашлевое средство", "Mucodinum -- отхаркивающее средство"], ans: [1, 3] },
+    { q: "Укажите соответствие частотных отрезков фармакологическим группам:", opts: ["Dimoestrolum -- гормональный препарат женских половых желез", "Hydrocortisonum -- гормональный препарат коры надпочечников", "Liothyroninum -- анаболический стероид", "Methandostendiolum -- гормональный препарат щитовидной желез"], ans: [0, 1] },
+    { q: "Укажите соответствие частотных отрезков фармакологическим группам:", opts: ["Ciprofloxacinum -- фторхинолон", "Gentamycinum -- цефалоспориновый антибиотик", "Methacyclinum -- антибиотик из группы тетрациклина", "Sulfadimethoxinum -- сульфаниламид"], ans: [2, 3] },
+    { q: "Укажите соответствие частотных отрезков фармакологическим группам:", opts: ["Mezym-forte -- гастропротектор", "Cholenzymum -- желчегонный препарат", "Forlax -- слабительное средство", "Omeprazolum -- ферментный препарат"], ans: [1, 2] },
+    { q: "Укажите соответствие частотных отрезков фармакологическим группам:", opts: ["Marcainum -- местный анестетик", "Baralginum -- спазмолитическое средство", "Pyrameinum -- болеутоляющее", "Seduxenum -- успокаивающее средство"], ans: [0, 2] },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"масла какао, сколько потребуется, чтобы получился суппозиторий\":", opts: ["Oleum Cacao quantum satis fiat suppositorium", "Oleum Cacao quantum satis fiant suppositorium", "Oleum Cacao quantum satis fiat suppositoria", "Olea Cacao fiant suppositoria quantum satis"], ans: 0 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми: Настоя травы горицвета весеннего\":", opts: ["Recipere infusi herbae Adonidis vernalis", "Recipe: Infusi herbae Adonidis vernalis", "Recipe: Infusum herbae Adonidis vernalis", "Recipe: Infusi herbarum Adonis vernalis"], ans: 1 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми корневища с корнями валерианы\":", opts: ["Recipe: Rhizoma cum radicibus Valerianae", "Recipe: Rhizomatum cum radicibus Valerianae", "Recipe: Rhizomatis cum radicibus Valerianae", "Recipe: Rhizomatis cum radicis Valerianae"], ans: 2 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми пасты оксида цинка\":", opts: ["Recipe: Pastae Zinci oxydum", "Recipere pastae Zinci oxydi", "Recipe: Pastae Zinci oxydi", "Recipe: Pasta Zinci oxydi"], ans: 2 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми таблетки глутаминовой кислоты, покрытые оболочкой\":", opts: ["Recipere tabulettam Acidi glutaminici obductam", "Recipe: Tabulettas acidi glutaminici obductas", "Recipe: Tabulettam Acidi glutaminici obductam", "Recipe: Tabulettam \"Acidum glutaminicum\" obductam"], ans: 1 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми: разбавленного раствора пероксида водорода\":", opts: ["Recipe: Solutionis Hydrogenii peroxydi dilutae", "Recipe: Solutionis Hydrogenii peroxydi diluti", "Recipe: Solutionis Hydrogenii peroxydum dilutae", "Recipe: Solutionis Peroxydi Hydrogenii dilutae"], ans: 0 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми: жидкого экстракта кровохлебки\":", opts: ["Recipe: Extractum Sanguisorbae fluidum", "Recipe: Fluidi extracti Sanguisorbae", "Recipe: Extracti Sanguisorbae fluidi", "Recipe: Extracti fluidi Sanguisorbarum"], ans: 2 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Возьми суппозитории с панадолом\":", opts: ["Recipe: Suppositorium cum Panadolo", "Recipe: Suppositoria cum Panadolo", "Recipe: Suppositorium cum Panadoli", "Recipe: Suppositorium cum Panadolum"], ans: 1 },
+    { q: "Укажите правильную последовательность с верными окончаниями в рецептурной строке: \"Эмульсии семян льна\":", opts: ["Recipere emulsi seminum Lini", "Recipe: Emulsii seminum Lini", "Recipe: Emulsi seminis Lini", "Recipe: Emulsi seminum Lini"], ans: 3 },
+    { q: "Термин со значением \"железистая клетка\":", opts: ["adenocytus", "chondrocytus", "hepatocytus", "myelocytus"], ans: 0 },
+    { q: "Увеличение размеров губ:", opts: ["macroglossia", "macromastia", "macrocheilia", "macrogenia"], ans: 2 },
+    { q: "Воспаление околопочечной ткани:", opts: ["paracystitis", "paranephritis", "parametritis", "paraurethritis"], ans: 1 },
+    { q: "Воспаление слизистой носоглотки:", opts: ["отит", "ринит", "фарингит", "ринофарингит"], ans: 3 },
+    { q: "Вставьте пропущенную часть термина hypox... - пониженное содержание кислорода в крови:", opts: ["--uria", "--algia", "--aemia", "--ergia"], ans: 2 },
+    { q: "Одновременное воспаление нескольких нервов:", opts: ["neuritis", "mononeuritis", "panneuritis", "polyneuritis"], ans: 3 },
+    { q: "Опухоль нервной ткани:", opts: ["ангиома", "гематома", "неврома", "остеома"], ans: 2 },
+    { q: "Переведите термин \"chondromalacia\":", opts: ["размягчение кости", "размягчение костного мозга", "размягчение роговицы", "размягчение хряща"], ans: 3 },
+    { q: "Искусственное охлаждение организма:", opts: ["термометрия", "гипотермия", "гипертермия", "термоплегия"], ans: 1 },
+    { q: "Неполное количество пальцев на руке или ноге:", opts: ["macrodactylia", "oligodactylia", "polydactylia", "syndactylia"], ans: 1 },
+    { q: "Увеличение размеров печени и селезёнки:", opts: ["hepatomegalia", "splenomegalia", "microsplenia", "hepatosplenomegalia"], ans: 3 },
+    { q: "Допишите недостающую часть термина ...arthritis -- воспаление тканей вокруг сустава:", opts: ["pan--", "peri--", "poly--", "mono--"], ans: 1 },
+    { q: "Укажите латинский аналог термина «нарушение питания сердечной мышцы»:", opts: ["myocardiodystrophia", "hepatomegalia", "hepatosplenomegalia", "parametritis"], ans: 0 },
+    { q: "Найдите термин «корь»:", opts: ["morbilli", "cancer", "icterus", "tetanus"], ans: 0 },
+    { q: "Очаг омертвения вследствие стойкого отсутствия притока крови -- это:", opts: ["infarctus", "insultus", "collapsus", "prolapsus"], ans: 0 },
+    { q: "Расширение легких воздухом -- это:", opts: ["empyema", "emphysema", "eczema", "erythema"], ans: 1 },
+    { q: "Какой термин обозначает «выслушивание»?", opts: ["palpatio", "auscultatio", "percussio", "reanimatio"], ans: 1 },
+    { q: "Какой термин обозначает «ощупывание»?", opts: ["auscultatio", "curatio", "palpatio", "percussio"], ans: 2 },
+    { q: "Найдите термин, обозначающий «усиленный приток крови»:", opts: ["anaemia", "glycaemia", "hyperaemia", "hypoxia"], ans: 2 },
+    { q: "Подберите недостающую часть термина -- \"... uria -- скудное мочевыделение\":", opts: ["an --", "dys--", "poly --", "oligo --"], ans: 3 },
+    { q: "Термин со значением «истечение гноя»:", opts: ["diarrhoea", "galactorrhoea", "rhinorrhoea", "pyorrhoea"], ans: 3 },
+    { q: "Воспаление гортани -- это:", opts: ["bronchitis", "laryngitis", "pharyngitis", "rhinitis"], ans: 1 },
+    { q: "Найдите перевод термина \"Ileus, i, m \":", opts: ["подвздошная кишка", "кишечник", "кишечная непроходимость", "спазм кишечника"], ans: 2 },
+    { q: "Расширение почечной лоханки -- это:", opts: ["pyelectasia", "pyelostenosis", "pyelonephritis", "pyelitis"], ans: 0 },
+    { q: "Найдите перевод термина \" tetanus, i, m\":", opts: ["желтуха", "спазм", "столбняк", "чесотка"], ans: 2 },
+    { q: "Повышение внутриглазного давления обозначается термином:", opts: ["глаукома", "катаракта", "кома", "трахома"], ans: 0 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"эмболия легочной артерии\":", opts: ["embolija arteriae pulmonalis", "embolia arteriae pulmonalae", "embolia pulmonalis arteriae", "embolia arteriae pulmonalis"], ans: 3 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"неврит бедренного нерва\":", opts: ["neuriti nervi femoralis", "neuritis nervi femoralis", "neuritis nervis femoralis", "neuritis femoralis nervi"], ans: 1 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"лечение злокачественной опухоли\":", opts: ["curatio cancri maligni", "curatio tumor maligni", "curatio tumoris maligni", "curatio maligni tumoris"], ans: 2 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"перелом костей правой стопы\":", opts: ["fractura ossium pedis dextri", "fractura ossis pedis dextri", "fractura ossium pedis dextris", "fractura ossium dextri pedis"], ans: 0 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"Синдром малого затылочного нерва\":", opts: ["Syndromus nervi occipitalis minoris", "Syndromum nervis occipitalis minoris", "Syndromum minoris occipitalis nervi", "Syndromum nervi occipitalis minoris"], ans: 3 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"лечение острого распространенного фурункулеза\":", opts: ["сuratio furunculosae polytopicae acutae", "сuratio furunculosis polytopicae acutae", "сurationes furunculosis polytopicae acutae", "сuratio acutae polytopicae furunculosis"], ans: 1 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"лечение ишемической болезни сердца \":", opts: ["curatio morbis ischaemici cordis", "curationis morbi ischaemici cordis", "curatio morbi ischaemici cordis", "curatio cordis ischaemici morbi"], ans: 2 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"признаки гиперплазии почечной артерии\":", opts: ["symptomatae hyperlasiae arteriae renalis", "symptomata hyperlasiae arteriae renalae", "symptomata renalis arteriae hyperlasiae", "symptomata hyperlasiae arteriae renalis"], ans: 3 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"лечение острой долевой пневмонии\":", opts: ["curatio pneumoniis lobularis acutae", "curatio pneumoniae lobularis acutae", "curatio acutae lobularis pneumoniae", "curatio pneumoniae lobularis acutis"], ans: 1 },
+    { q: "Укажите правильную последовательность слов с верными окончаниями в термине \"лечение острого аллергического ринита\":", opts: ["curatio rhinis allergicae acutae", "curatio rhinitis allergicae acutis", "curatio rhinitis allergicae acutae", "curatio acutae allergicae rhinitis"], ans: 2 },
+    { q: "Измерение физических параметров тела -- это:", opts: ["craniometria", "anthropometria", "cephalometria", "somatometria"], ans: 1 },
+    { q: "Измерение размеров головы обозначается термином:", opts: ["цефальгия", "цефалография", "цефалометрия", "энцефалит"], ans: 2 },
+    { q: "Изображение (снимок) мочевого пузыря -- это:", opts: ["cystalgia", "cystoscopia", "cystographia", "cystoplastica"], ans: 2 },
+    { q: "Заболевание молочной железы -- это:", opts: ["маммография", "мастотомия", "мастэктомия", "мастопатия"], ans: 3 },
+    { q: "Метод исследования сосудов -- это:", opts: ["angiologia", "angiographia", "angioma", "angiectasia"], ans: 1 },
+    { q: "Заболевание костей -- это:", opts: ["osteolysis", "osteoma", "osteopathia", "osteomalacia"], ans: 2 },
+    { q: "Изображение матки -- это:", opts: ["гистероскопия", "гистерография", "гистероррагия", "гистерорафия"], ans: 1 },
+    { q: "Укажите значение суффикса --itis?", opts: ["болезнь", "воспаление", "опухоль", "хроническое заболевание"], ans: 1 },
+    { q: "Укажите значение суффиксов \"osis\", \"iasis\", \"ismus\":", opts: ["болезнь", "воспаление", "опухоль", "хроническое заболевание"], ans: 3 },
+    { q: "Укажите значение словообразовательного элемента \"tachy\":", opts: ["быстрый", "медленный", "короткий", "красный"], ans: 0 },
+    { q: "Укажите значение словообразовательного элемента \"brady\":", opts: ["быстрый", "медленный", "короткий", "красный"], ans: 1 },
+    { q: "Замедленное поглощение обозначается термином:", opts: ["афагия", "брадифагия", "дисфагия", "тахифагия"], ans: 1 },
+    { q: "Оперативное удаление матки, маточной трубы и яичника -- это:", opts: ["гистерэктомия", "оофорэктомия", "оофоргистерэктомия", "оофоргистерсальпингэктомия"], ans: 3 },
+    { q: "Повышенное содержание лейкоцитов в крови:", opts: ["лейкопоэз", "лейкоз", "лейкоцитоз", "лейкемия"], ans: 2 },
+    { q: "Хроническое заболевание печени и почек обозначается термином:", opts: ["гепатит", "нефрит", "гепатонефрит", "гепатонефроз"], ans: 3 },
+    { q: "Воспаление тонкой и толстой кишки обозначается термином:", opts: ["энтерит", "энтероспазм", "энтеропатия", "энтероколит"], ans: 3 },
+    { q: "Увеличение прямой кишки -- это:", opts: ["проктит", "проктальгия", "проктомегалия", "проктоспазм"], ans: 2 },
+    { q: "Воспаление нескольких суставов -- это:", opts: ["артрит", "миноартрит", "олигоартрит", "полиартрит"], ans: 3 },
+    { q: "Боль по ходу нерва обозначается термином:", opts: ["неврастения", "невралгия", "невротомия", "невропатология"], ans: 1 },
+    { q: "Уменьшенные размера молочной железы -- это:", opts: ["мастопатия", "микромастия", "макромастия", "мастотомия"], ans: 1 },
+    { q: "Судорога прямой кишки -- это:", opts: ["проктэктазия", "проктоспазм", "проктомегалия", "проктальгия"], ans: 1 },
+    { q: "Кровоизлияние в глазу -- это:", opts: ["офтальмит", "офтальмоплегия", "офтальморрагия", "офтальмоскопия"], ans: 2 },
+    { q: "Обнаружение сахара в моче -- это:", opts: ["albuminuria", "bacteriuria", "glucosuria", "haematuria"], ans: 2 },
+    { q: "Общее воспаление желудка -- это:", opts: ["гастрит", "пангастрит", "перигастрит", "гастродуоденит"], ans: 1 },
+    { q: "Незначительное выделение мочи -- это:", opts: ["анурия", "дизурия", "олигурия", "полиурия"], ans: 2 },
+    { q: "Наложение шва на веко обозначается термином:", opts: ["блефароптоз", "блефароспазм", "блефаропластика", "блефароррафия"], ans: 3 },
+    { q: "Найдите термин со значением «опухоль»:", opts: ["oedema", "adenoma", "glaucoma", "coma"], ans: 1 },
+    { q: "Вставьте пропущенную часть термина hypox... - пониженное содержание кислорода в крови:", opts: ["--uria", "--algia", "--aemia", "--ergia"], ans: 2 },
+    { q: "Допишите недостающую часть термина nephro-- опущение почки:", opts: ["--pathia", "--stomia", "--rrhagia", "--ptosis"], ans: 3 },
+    { q: "Разрастание органа за счет его избыточного питания -- это:", opts: ["atrophia", "dystrophia", "hypotrophia", "hypertrophia"], ans: 3 },
+    { q: "В каком термине содержится понятие \"повышенная реактивность\"?:", opts: ["anergia", "dysergia", "hypergia", "hyperergia"], ans: 3 },
+    { q: "В каких терминах содержится понятие \"пониженное содержание\"?:", opts: ["hyperaemia", "hypoxaemia", "lymphocytosis", "leucopenia"], ans: [1, 3] },
+    { q: "Застой жидкости в венах -- это:", opts: ["cholestasis", "haemostasis", "phlebostasis", "urostasis"], ans: 2 },
+    { q: "Раздел медицины, изучающий заболевания желудочно-кишечного тракта -- это:", opts: ["haematologia", "pathologia", "gastroenterologia", "physiologia"], ans: 2 },
+    { q: "Создание свища толстых кишок -- это:", opts: ["colostomia", "gastrostomia", "proctostomia", "typhlostomia"], ans: 0 },
+    { q: "Паралич мышц глаза -- это:", opts: ["ophthalmia", "ophthalmospasmus", "ophtthalmitis", "ophthalmoplegia"], ans: 3 },
+    { q: "Найдите перевод термина \"neurasthenia\":", opts: ["воспаление нервов", "боль в области нерва", "слабость нервов", "заболевание нервов"], ans: 2 },
+    { q: "Сужение пищевода -- это:", opts: ["cardiostenosis", "pylorostenosis", "oesophagostenosis", "typhlostenosis"], ans: 2 },
+    { q: "Укажите значение «гемостаз»:", opts: ["кровотечение", "склонность к кровотечениям", "застой крови", "наука о болезнях крови"], ans: 2 },
+    { q: "Склонность к кровотечению -- это:", opts: ["haemorrhagia", "haemophilia", "spasmophilia", "thrombophilia"], ans: 1 },
+    { q: "Термин со значением «мочекаменная болезнь» -- это:", opts: ["elephanthiasis", "cholelithiasis", "nephrolithiasis", "urolithiasis"], ans: 3 },
+    { q: "Укажите значение термина «геморрагия»:", opts: ["кровотечение", "склонность к кровотечениям", "застой крови", "наука о болезнях крови"], ans: 0 },
+    { q: "Укажите термин со значением «застой мочи»:", opts: ["haemostasis", "cholestasis", "lymphostasis", "urostasis"], ans: 3 },
+    { q: "Паралич верхнего века -- это:", opts: ["blepharoptosis", "gastroptosis", "hysteroptosis", "nephroptosis"], ans: 0 },
+    { q: "Опущение почки -- это:", opts: ["gastroptosis", "colpoptosis", "hysteroptosis", "nephroptosis"], ans: 3 },
+    { q: "Исследование внутренних стенок носа -- это:", opts: ["rhinographia", "rhinoscopia", "rhinolithus", "rhinoplastica"], ans: 1 },
+    { q: "Разрыв матки -- это:", opts: ["гистероррагия", "гистероррафия", "гистеропексия", "гистеротомия"], ans: 0 },
+    { q: "Недостаток красных кровяных телец -- это:", opts: ["erythrocytosis", "erythropenia", "erythropoёsis", "erythrolysis"], ans: 1 },
+    { q: "Найдите перевод термина \"osteomyelitis\":", opts: ["опухоль костной ткани", "воспаление костного мозга", "заболевание спинного мозга", "воспаление спинного мозга"], ans: 1 },
+    { q: "Инструментальное исследование желчного пузыря -- это:", opts: ["cholecystopathia", "cholecystographia", "cholecystoscopia", "cholecystostomia"], ans: 2 },
+    { q: "Расширение почечной лоханки -- это:", opts: ["pyelotomia", "pyelonephritis", "pyelectasia", "pyelopmalacia"], ans: 2 },
+    { q: "Перевод термина -- «nephrolithiasis»:", opts: ["боль в почке", "воспаление почки", "камни в почках", "опущение почки"], ans: 2 },
+    { q: "Какой из данных терминов является названием антибиотика:", opts: ["Tetracyclinum", "Trioxazinum", "Tetravitum", "Trimecainum"], ans: 0 }
+];
+
+const container = document.getElementById('questions-container');
+const userAnswers = {};
+const questionStates = {};
+
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function renderQuestions() {
+    container.innerHTML = '';
+    questions.forEach((item, idx) => {
+        const isMulti = Array.isArray(item.ans);
+        const opts = item.opts.map((o, oi) => ({ text: o, origIdx: oi }));
+        const origCorrect = item.ans;
+        shuffleArray(opts);
+        let newCorrect;
+        if (isMulti) {
+            newCorrect = origCorrect.map(origIdx => opts.findIndex(o => o.origIdx === origIdx));
+        } else {
+            newCorrect = opts.findIndex(o => o.origIdx === origCorrect);
+        }
+        const letters = 'abcd'.split('');
+        const inputType = isMulti ? 'checkbox' : 'radio';
+
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        block.id = 'q-block-' + idx;
+        block.dataset.correct = JSON.stringify(newCorrect);
+        block.dataset.multi = isMulti;
+        block.innerHTML = `
+            <div class="q-text"><span class="q-num">${idx + 201}.</span>${item.q}</div>
+            <div class="options">
+                ${opts.map((o, oi) => `
+                    <label class="option" data-q="${idx}" data-o="${oi}">
+                        <input type="${inputType}" name="q${idx}" value="${oi}">
+                        <span class="option-letter">${letters[oi]}</span>
+                        <span class="option-text">${o.text}</span>
+                    </label>
+                `).join('')}
+            </div>
+            <div class="feedback" id="fb-${idx}"></div>
+        `;
+        container.appendChild(block);
+    });
+
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.addEventListener('click', function(e) {
+            const qIdx = parseInt(this.dataset.q);
+            const oIdx = parseInt(this.dataset.o);
+            const block = document.getElementById('q-block-' + qIdx);
+            const isMulti = block.dataset.multi === 'true';
+            const input = this.querySelector('input');
+            const correctAns = JSON.parse(block.dataset.correct);
+
+            if (isMulti) {
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+            } else {
+                block.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                input.checked = true;
+            }
+
+            if (isMulti) {
+                if (!userAnswers[qIdx]) userAnswers[qIdx] = [];
+                if (input.checked) {
+                    if (!userAnswers[qIdx].includes(oIdx)) userAnswers[qIdx].push(oIdx);
+                } else {
+                    userAnswers[qIdx] = userAnswers[qIdx].filter(v => v !== oIdx);
+                }
+            } else {
+                userAnswers[qIdx] = oIdx;
+            }
+
+            checkSingleQuestion(qIdx, block, correctAns, isMulti);
+        });
+    });
+}
+
+function checkSingleQuestion(idx, block, correctAns, isMulti) {
+    const fb = document.getElementById('fb-' + idx);
+    block.querySelectorAll('.option').forEach(o => o.classList.remove('correct-highlight'));
+
+    if (isMulti) {
+        const userSet = userAnswers[idx] || [];
+        if (userSet.length === 0) {
+            fb.classList.remove('show', 'correct-fb', 'incorrect-fb');
+            block.classList.remove('correct', 'incorrect');
+            questionStates[idx] = 'unanswered';
+        } else {
+            const sortedUser = [...userSet].sort();
+            const sortedCorrect = [...correctAns].sort();
+            const isCorrect = sortedUser.length === sortedCorrect.length &&
+                              sortedUser.every((v, i) => v === sortedCorrect[i]);
+            if (isCorrect) {
+                fb.textContent = '✅ Правильно!';
+                fb.className = 'feedback show correct-fb';
+                block.classList.add('correct');
+                block.classList.remove('incorrect');
+                questionStates[idx] = 'correct';
+            } else {
+                fb.textContent = '❌ Неправильно. Правильные ответы выделены зелёным.';
+                fb.className = 'feedback show incorrect-fb';
+                block.classList.add('incorrect');
+                block.classList.remove('correct');
+                questionStates[idx] = 'incorrect';
+                correctAns.forEach(ci => {
+                    const optEl = block.querySelector(`.option[data-o="${ci}"]`);
+                    if (optEl) optEl.classList.add('correct-highlight');
+                });
+            }
+        }
+    } else {
+        if (userAnswers[idx] === undefined) {
+            fb.classList.remove('show', 'correct-fb', 'incorrect-fb');
+            block.classList.remove('correct', 'incorrect');
+            questionStates[idx] = 'unanswered';
+        } else if (userAnswers[idx] === correctAns) {
+            fb.textContent = '✅ Правильно!';
+            fb.className = 'feedback show correct-fb';
+            block.classList.add('correct');
+            block.classList.remove('incorrect');
+            questionStates[idx] = 'correct';
+        } else {
+            fb.textContent = '❌ Неправильно. Правильный ответ выделен зелёным.';
+            fb.className = 'feedback show incorrect-fb';
+            block.classList.add('incorrect');
+            block.classList.remove('correct');
+            questionStates[idx] = 'incorrect';
+            const optEl = block.querySelector(`.option[data-o="${correctAns}"]`);
+            if (optEl) optEl.classList.add('correct-highlight');
+        }
+    }
+
+    updateGlobalScore();
+}
+
+function updateGlobalScore() {
+    const total = questions.length;
+    let correct = 0;
+    for (let i = 0; i < total; i++) {
+        if (questionStates[i] === 'correct') correct++;
+    }
+    document.getElementById('global-result').textContent =
+        `Результат: ${correct} из ${total} (${Math.round(correct/total*100)}%)`;
+}
+
+function resetAll() {
+    for (const key in userAnswers) delete userAnswers[key];
+    for (const key in questionStates) delete questionStates[key];
+    document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.checked = false;
+    });
+    document.querySelectorAll('.option').forEach(o => {
+        o.classList.remove('selected', 'correct-highlight');
+    });
+    document.querySelectorAll('.question-block').forEach(b => b.classList.remove('correct', 'incorrect'));
+    document.querySelectorAll('.feedback').forEach(f => f.className = 'feedback');
+    updateGlobalScore();
+}
+
+renderQuestions();
+</script>
+</body>
+</html>

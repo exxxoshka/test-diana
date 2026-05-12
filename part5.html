@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фармацевтический тест — Часть 5 (801–1000)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; line-height: 1.6; }
+        .top-nav { background: #1a365d; padding: 12px 0; text-align: center; position: sticky; top: 0; z-index: 100; }
+        .top-nav a, .top-nav span { display: inline-block; padding: 8px 18px; margin: 0 5px; border-radius: 6px; font-weight: 500; text-decoration: none; color: #fff; background: #2b6cb0; transition: 0.2s; }
+        .top-nav a:hover { background: #3182ce; }
+        .top-nav span.active { background: #38a169; cursor: default; }
+        .top-nav span.disabled { background: #4a5568; cursor: not-allowed; opacity: 0.7; }
+        .container { max-width: 950px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #1a365d; margin: 20px 0 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: #718096; margin-bottom: 30px; font-size: 16px; }
+        .question-block { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #3182ce; transition: 0.3s; }
+        .question-block.correct { border-left-color: #38a169; background: #f0fff4; }
+        .question-block.incorrect { border-left-color: #e53e3e; background: #fff5f5; }
+        .q-num { font-weight: 700; color: #3182ce; margin-right: 8px; }
+        .q-text { font-weight: 500; margin-bottom: 14px; font-size: 16px; }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fafafa; }
+        .option:hover { border-color: #3182ce; background: #ebf8ff; }
+        .option input[type="radio"], .option input[type="checkbox"] { display: none; }
+        .option-letter { width: 32px; height: 32px; border-radius: 50%; background: #edf2f7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #4a5568; flex-shrink: 0; transition: 0.2s; }
+        .option.selected .option-letter { background: #3182ce; color: #fff; }
+        .option.correct-highlight { border-color: #38a169; background: #f0fff4; }
+        .option.correct-highlight .option-letter { background: #38a169; color: #fff; }
+        .option-text { flex: 1; }
+        .feedback { margin-top: 10px; padding: 8px 14px; border-radius: 6px; font-weight: 500; font-size: 14px; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct-fb { background: #c6f6d5; color: #22543d; }
+        .feedback.incorrect-fb { background: #fed7d7; color: #742a2a; }
+        .btn-group { text-align: center; margin: 30px 0; }
+        .btn { padding: 14px 40px; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; margin: 0 8px; }
+        .btn-reset { background: #e2e8f0; color: #4a5568; }
+        .btn-reset:hover { background: #cbd5e0; }
+        .result { text-align: center; font-size: 22px; font-weight: 700; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="part1.html">Часть 1</a>
+    <a href="part2.html">Часть 2</a>
+    <a href="part3.html">Часть 3</a>
+    <a href="part4.html">Часть 4</a>
+    <a href="part5.html">Часть 5</a>
+</div>
+
+<div class="container">
+    <h1>🧪 Фармацевтический тест</h1>
+    <p class="subtitle">Часть 5 • Вопросы 801–1000 • Мгновенная проверка</p>
+
+    <div id="questions-container"></div>
+
+    <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetAll()">🔄 Сбросить все ответы</button>
+    </div>
+    <div class="result" id="global-result"></div>
+</div>
+
+<script>
+const questions = [
+    { q: "Укажите правильный перевод термина «раствор дибазола для инъекций»: solutio Dibazol... pro injection...", opts: ["--a, -itus", "--a, -e", "--i, -ibus", "--i, -is"], ans: 2 },
+    { q: "Выберите правильно переведённый рецепт: Возьми: Жидкого экстракта алоэ 1 мл. Выдай. Обозначь.", opts: ["Rp.: Extractum Aloёs fluidum 1 ml Da. Signa.", "Rp.: Extracti Aloёs fluidum 1 ml Da. Signa.", "Rp.: Fluidi extracti Aloёs 1 ml Da. Signa.", "Rp.: Extracti Aloёs fluidi 1 ml Da. Signa."], ans: 3 },
+    { q: "В какой строке рецепта допущена ошибка: Rp.: Dimedroli 0,25 / Euphyllini 0,5 / Aqae distillatae 10 ml / Misce. Da. Signa.", opts: ["в первой", "во второй", "в третьей", "в четвёртой"], ans: 2 },
+    { q: "Выберите правильно переведённый рецепт: Возьми: Масляного раствора синестрола 1% 1 мл. Выдай такие дозы числом 10 в ампулах. Обозначь.", opts: ["Rp.: Solutionis Synoestroli oleosa 1% 1 ml Da tales doses numero 10 in ampullis Signa", "Rp.: Solutionis Synoestroli oleosae 1% 1 ml Da tales doses numero 10 in ampullis Signa", "Rp.: Solutio Synoestroli oleosa 1% 1 ml Da tales doses numero 10 in ampullis Signa", "Rp.: Solutionis Synoestroli oleosae 1% 1 ml Da talis dosis numero 10 in ampullis Signa"], ans: 1 },
+    { q: "Укажите верные соответствия:", opts: ["Borax, acis f - змеевик", "Bistorta, ae f - бура", "pulvis, eris m - порошок", "rhizoma, atis n - корневище"], ans: [2, 3] },
+    { q: "Укажите верные соответствия:", opts: ["Chamomilla - ромашка", "Belladonna - красавка", "Convallaria - шалфей", "Salvia - ландыш"], ans: [0, 1] },
+    { q: "Существительное, обозначающее название лекарственной формы, в рецептурной строке стоит в ... падеже: Recipe: Tabulettas \"Pyrcophenum\" numero 6. Da. Signa", opts: ["Nom.sing.", "Gen.sing.", "Acc.plur.", "Gen.plur."], ans: 2 },
+    { q: "«Йодоформ в порошке» в строке рецепта надо написать:", opts: ["Iodoformium in pulveris", "Iodoformii pulverati", "Iodoformii in pulveris", "Iodoformium pulveratum"], ans: 1 },
+    { q: "Выберите правильный перевод рецептурной формулировки: Возьми: Масла какао сколько нужно, чтобы образовался ректальный суппозиторий", opts: ["Rp.: Olei Cacao quantum satis, ut fiant suppositorium rectale", "Rp.: Olei Cacao quantum satis, ut fiat suppositorium rectalum", "Rp.: Olei Cacao quantum satis, ut fiat suppositorii rectale", "Rp.: Olei Cacao quantum satis, ut fiat suppositorium rectale"], ans: 3 },
+    { q: "Вставьте недостающее окончание в строке рецепта: Rp. : Vinylini / Olei Persic... / Misce. Da. Signa", opts: ["-orum", "-um", "-ori", "-i"], ans: 0 },
+    { q: "Вставьте правильное окончание: Rp.: Tabulett... \"Colibacterinum\" numero 20. Da. Signa", opts: ["-a", "-as", "-arum", "-ae"], ans: 1 },
+    { q: "Укажите правильный порядок слов с верными окончаниями в выражении «Смешай, пусть получатся таблетки, покрытые оболочкой» в латинском переводе:", opts: ["misce fiant tabulettae obductae", "misce fiat tabulettas obductas", "misce fiant tabulettis obductis", "misce fiat tabuletta obducta"], ans: 0 },
+    { q: "Согласуйте прилагательное с существительным в термине: Recipe: Spiritus aethylic...", opts: ["-us", "-i", "-a", "-ae"], ans: 1 },
+    { q: "Укажите верные соответствия:", opts: ["белый - purus", "сложный - compositus", "чистый - albus", "перечный - piperitus"], ans: [1, 3] },
+    { q: "Укажите правильно написанный рецепт:", opts: ["Rp.: Phenoxymethylpenicillini 100. 000 ED Da tales dosis numero 10 in tabulettis Signa.", "Rp.: Phenoximetilpenicyllini 100. 000 ED Da tales doses numero 10 in tabulettis Signa.", "Rp.: Phenoxymethylpenicillini 100. 000 ED Da tales doses numero 10 in tabulettis Signa.", "Rp.: Phenoxymethilpenicyllini 100. 000 ED Da tales doses numero 10 in tabulettas Signa."], ans: 2 },
+    { q: "Укажите правильный перевод рецепта: Возьми: Таблетки пентоксила, покрытые оболочкой числом 20. Выдай. Обозначь.", opts: ["Recipe: Tabulettam Pentoxyli obductam numero 20 Da. Signa.", "Recipe: Tabulettas Pentoxyli obductam numero 20 Da. Signa.", "Recipe: Tabulettas Pentoxyli obductas numero 20 Da. Signa.", "Recipe: Tabulettae Pentoxyli obductae numero 20 Da. Signa."], ans: 2 },
+    { q: "Укажите правильно написанный рецепт:", opts: ["Rp.: Trimecaini 3,0 / Hexamethylentetramini 2,0 / Aquae destillatae 200 ml / Misce. Da. Signa.", "Rp.: Trimecainum 3,0 / Hexamethylentetramini 2,0 / Aquae destillata 200 ml / Misce. Da. Signa.", "Rp.: Trimekaini 3,0 / Hexamethylentetramini 2,0 / Aquae destillatae 200 ml / Misce. Da. Signa.", "Rp.: Trymecaini 3,0 / Hexamethylentetramini 2,0 / Aquae destillatae 200 ml / Misce. Da. Signa."], ans: 0 },
+    { q: "Укажите правильно написанный рецепт:", opts: ["Rp.: Morphocyklini 0,15 / Da tales doses numero 6 / Signa.", "Rp.: Morphocyclinum 0,15 / Da tales doses numero 6 / Signa.", "Rp.: Morphocyclini 0,15 / Da tales doses numero 6 / Signa.", "Rp.: Morphociclini 0,15 / Da talis doses numero 6 / Signa."], ans: 2 },
+    { q: "Выберите окончание, которое подходит ко всем словам в рецепте: Rp.: Dicain... 0,05 / Chloroformi... / Aetheris aethylic... 95 % ana 1 ml / Misce. Da. Signa.", opts: ["-um", "-ae", "-i", "-us"], ans: 2 },
+    { q: "Укажите правильно написанный рецепт:", opts: ["Rp.: Methylenum coerulei 2.0 / Aqua destillata 100 ml / M. D. S.", "Rp.: Methileni coerulei 2.0 / Aquae destillatae 100 ml / M. D. S.", "Rp.: Methyleni coerulei 2.0 / Aqae destillatae 100 ml / M. D. S.", "Rp.: Methyleni coerulei 2.0 / Aquae destillatae 100 ml / M. D. S."], ans: 3 },
+    { q: "Укажите правильный перевод рецепта: Возьми: Свечи «Анузoл» числом 6. Обозначь.", opts: ["Rp.: Suppositorium \"Anusolum\" numero 6 Da. Signa.", "Rp.: Suppositoria \"Anusolum\" numero 6 Da. Signa.", "Rp.: Suppositorii \"Anusolum\" Da. Signa.", "Rp.: Suppositoria \"Anuzolum\" Da. Signa."], ans: 1 },
+    { q: "Укажите непереведённое на латинский язык устойчивое рецептурное выражение в термине «Chloroformium для наркоза»:", opts: ["pro narcosum", "pro narcosii", "pro narcosi", "pro narcoso"], ans: 2 },
+    { q: "Найдите перевод устойчивого рецептурного выражения «Выдай в чёрной склянке»:", opts: ["Da in vitro nigro", "Da in capsulis gelatinosis", "Da in charta cerata", "Da in ampullis"], ans: 0 },
+    { q: "Вставьте непереведённые на латинский язык слова в устойчивом рецептурном выражении «Da tales doses numero 6 в вощёной бумаге»:", opts: ["in vitro nigro", "in charta cerata", "in capsulis gelatinosis", "in scatula"], ans: 1 },
+    { q: "Укажите правильно написанное устойчивое рецептурное предложение:", opts: ["quantum satis, ut fiat pasta", "cvantum satis, ut fiat pastae", "quantum satis, ut fiant pasta", "quantum satis, ut fiat pastae"], ans: 0 },
+    { q: "В рецептурной строке название лекарственного вещества грамматически зависит от дозы и указывается в:", opts: ["родительном падеже множественного числа", "именительном падеже единственного числа", "винительном падеже единственного числа", "родительном падеже единственного числа"], ans: 3 },
+    { q: "При выписывании таблеток с условным наименованием название лекарственной формы в рецептурной строке стоит в:", opts: ["Gen. sing.", "Gen. plur.", "Nom. plur.", "Acc. plur."], ans: 3 },
+    { q: "При выписывании свечей с условным наименованием название препарата записывается в кавычках в:", opts: ["Nom. sing.", "Nom. plur.", "Gen. sing.", "Acc. plur."], ans: 0 },
+    { q: "Укажите, в какой строке рецепта есть ошибки: Rp.: Solutionis oleosae Retabolili 5 % 1 ml / Da tales doses numero 5 in ampullis / Signa.", opts: ["во второй", "в первой", "в третьей", "в четвёртой"], ans: 1 },
+    { q: "Укажите правильно переведённый рецепт: Возьми: Отвара корневища змеевика 10,0: 200 мл. Выдай. Обозначь.", opts: ["Rp.: Extracti rhizomatis Bistortae 10,0: 200 ml Da. Signa.", "Rp.: Decocti radicis Bistortae 10,0: 200 ml Da. Signa.", "Rp.: Decocti corticis Bistortae 10,0: 200 ml Da. Signa.", "Rp.: Decocti rhizomatis Bistortae 10,0: 200 ml Da. Signa."], ans: 3 },
+    { q: "Укажите правильный перевод термина «таблетки тетрациклина, покрытые оболочкой»:", opts: ["tabulettas obductas Tetracyclini", "tabulettae Tetracyclini obductae", "tabulettae Tetracyclini obducti", "tabulettae obductae Tetracyclini"], ans: 1 },
+    { q: "Выберите правильную формулировку устойчивого рецептурного выражения:", opts: ["Misce, fiat emulsum", "Misce, fiat pilulae", "Misce, fiant pilulas", "Misce, fiat suppositoria"], ans: 0 },
+    { q: "Укажите правильный порядок слов с верными окончаниями в выражении «ампулы спиртового раствора сальвина»:", opts: ["ampullae spirituosae solutionis Salvini", "ampullae solutioni Salvini spirituosi", "ampullae solutionis Salvini spirituosae", "solutionis Salvini spirituosae in ampullis"], ans: 2 },
+    { q: "Укажите правильный порядок слов с верными окончаниями в выражении «Раствор иода для внутреннего применения»:", opts: ["solutio Iodum ad usum internum", "solutio Iodi ad usum internum", "solutio Iodi ad usi interni", "solutio Iodi ad internum usum"], ans: 1 },
+    { q: "К существительным мужского рода относятся термины:", opts: ["Thermopsis", "Aether", "Borax", "Leonurus"], ans: [1, 3] },
+    { q: "Добавьте окончание «Da tales doses numero 5 in ampull...»:", opts: ["-as", "-is", "-es", "-ae"], ans: 1 },
+    { q: "Подберите прилагательное, соответствующее существительному в структуре номенклатурного наименования лекарственного средства: Methylenum...", opts: ["flavum", "nigrum", "coeruleum", "rubrum"], ans: 2 },
+    { q: "Подберите прилагательное, соответствующее существительному в структуре номенклатурного наименования лекарственного средства: Pulvis radicis Glycyrrhizae ... (сложный)", opts: ["compositus", "compositum", "composita", "compositi"], ans: 0 },
+    { q: "Подберите прилагательное, соответствующее существительному в структуре номенклатурного наименования лекарственного средства: Aether ...:", opts: ["destillatus", "piperitus", "medicinalis", "pulveratus"], ans: 2 },
+    { q: "Подберите соответствующую предлогу форму имени существительного в структуре номенклатурных наименований лекарственных средств: Suspensio \"Zovirax\" ad ... internum 125 ml", opts: ["usus", "usuum", "usui", "usum"], ans: 3 },
+    { q: "Выберите пропущенное слово в рецептурной строке: Recipe: ... Adrenalini hydrochloridi 0,1 % X guttas", opts: ["Solutionis", "Solutionem", "Solutione", "Solutio"], ans: 0 },
+    { q: "Вставьте недостающее окончание: Recipe: Anaesthesin... 2 ml / Ole... Vaselin... 90 ml / Ole... Eucalypt... 5 ml / Misce. Da. Signa.", opts: ["-a", "-um", "-ae", "-i"], ans: 3 },
+    { q: "Названия химических элементов -- это существительные:", opts: ["мужского рода II склонения с окончанием «-us»", "женского рода I склонения с окончанием «-a»", "среднего рода II склонения с окончанием «-um»", "среднего рода II склонения с окончанием «-on»"], ans: 2 },
+    { q: "Какому русскому названию химического элемента соответствует латинское «Hydrargyrum, i n»?", opts: ["мышьяк", "золото", "углерод", "ртуть"], ans: 3 },
+    { q: "Суффиксу «-icum» в названиях кислот соответствуют все суффиксы кроме:", opts: ["-истая", "-ная", "-евая", "-овая"], ans: 0 },
+    { q: "Выберите правильное окончание в фармацевтическом термине «радиоактивное золото» - Aurum radioactiv... :", opts: ["-a", "-us", "-um", "-i"], ans: 2 },
+    { q: "В названиях бескислородных кислот приставке «hydro-» соответствует в русских названиях окончание:", opts: ["-истая", "-овая", "-водородная", "-евая"], ans: 2 },
+    { q: "Укажите правильно написанный термин «цинковая паста»:", opts: ["pastae Zinci", "pasta Zincovi", "pasta Zincum", "pasta Zinci"], ans: 3 },
+    { q: "От основы какого существительного образуется латинское название янтарной кислоты?", opts: ["lac, lactis m", "succinum, i n", "citrus, i m", "formica, ae f"], ans: 1 },
+    { q: "Выберите правильные окончания в термине «порошок железа восстановленного» - Pulv... Ferr... reduct... :", opts: ["--is; -um; -um", "--is; -i; -i", "--is; -i; -um", "--eris; -i; -i"], ans: 1 },
+    { q: "Укажите латинский эквивалент термина «свинцовая вода»:", opts: ["aqua plumbica", "aqua Menthae", "aqua Plumbi", "aqua Rosae"], ans: 2 },
+    { q: "Выберите правильно написанный рецепт:", opts: ["Rp.: Spiriti aethylici 1 ml / Perhydroli 5 ml / Misce. Da. Signa.", "Rp.: Spiritus aethylicus 1 ml / Perhydroli 5 ml / Misce. Da. Signa.", "Rp.: Spiritus aethylici 1 ml / Perhidroli 5 ml / Misce. Da. Signa.", "Rp.: Spiritus aethylici 1 ml / Perhydroli 5 ml / Misce. Da. Signa."], ans: 3 },
+    { q: "Укажите правильный суффикс в названии кислоты «Acidum salicyl...»:", opts: ["-idum", "-icum", "-osum", "-idi"], ans: 1 },
+    { q: "Выберите правильный перевод термина «яблочная кислота»:", opts: ["Acidum carbolicum", "Acidum citricum", "Acidum malicum", "Acidum formicum"], ans: 2 },
+    { q: "Укажите наименование закиси:", opts: ["Acidum hydrobromicum", "Hydrogenii peroxydum", "Zinci oxydum", "Nitrogenium oxydulatum"], ans: 3 },
+    { q: "Групповое наименование оксида -- это существительное:", opts: ["II склонения среднего рода", "II склонения мужского рода", "I склонения женского рода", "IV склонения среднего рода"], ans: 0 },
+    { q: "В латинских названиях пероксидов название элемента ставится в:", opts: ["Nom. sing.", "Nom. pl.", "Gen. sing.", "Gen. pl."], ans: 2 },
+    { q: "Какой суффикс используется для образования латинских названий кислот?", opts: ["-idum", "-atis", "-osis", "-icum"], ans: 3 },
+    { q: "Укажите правильный перевод «жёлтый оксид ртути»:", opts: ["Hydrargyrum flavum oxydum", "oxydum Hydrargyri flavum", "Hydrargyri oxydum flavum", "Hydrargyri oxydi flavi"], ans: 2 },
+    { q: "Выберите правильные окончания в термине «мельчайший порошок оксида цинка» - pulvis Zinc... oxyd... subtilissim...", opts: ["--um; -um; -um", "--i; --i; --i", "--i; -um; -um", "--i; --i; -us"], ans: 3 },
+    { q: "В какой рецептурной строке допущена ошибка? Rp.: Decocti corticis Querci 10.0 -- 200 ml / Glycerini 5 ml / Misce. Da. Signa.", opts: ["в первой строке", "во второй строке", "в третьей строке", "во всех строках"], ans: 0 },
+    { q: "Русскому наречию «поровну, по» соответствует латинское:", opts: ["ad", "ana", "ex", "in"], ans: 1 },
+    { q: "Русскому названию «Чистая серная кислота» соответствует латинское:", opts: ["Acidum hydrochloricum dilutum", "Acidum sulfuricum purum", "Acidum aceticum concentratum", "Acidum arsenicosum anhydricum"], ans: 1 },
+    { q: "Выберите правильные окончания в названии кислоты \"Acidum carbol... crystallisat...\":", opts: ["--ica; -a", "--um; -um", "--icum; -um", "--osum; -icum"], ans: 2 },
+    { q: "Какое окончание является общим в следующих терминах? \"Magnii oxyd...\"; \"Hydrogenii peroxyd...\":", opts: ["--i", "--um", "--as", "--is"], ans: 1 },
+    { q: "Укажите название химического элемента, являющегося исключением из правила:", opts: ["Aluminium, i n", "Phosphorus, i m", "Barium, i n", "Natrium, i n"], ans: 1 },
+    { q: "Русскому названию химического элемента «Кислород» соответствует латинское:", opts: ["Fluorum, i n", "Arsenicum, i n", "Oxygenium, i n", "Bismuthum, i n"], ans: 2 },
+    { q: "Латинские названия оксидов, пероксидов и гидроксидов строятся по схеме:", opts: ["что? → чего?", "что? → какой?", "чего? → что?", "чего? → чего?"], ans: 2 },
+    { q: "Латинские наименования закисей строятся на схеме:", opts: ["что? → чего?", "чего? → что?", "какая? → что?", "что? → какая?"], ans: 3 },
+    { q: "Выберите правильный перевод термина «Молочная кислота»:", opts: ["Acidum aceticum", "Acidum lacticum", "Acidum sulfuricum", "Acidum folicum"], ans: 1 },
+    { q: "Подберите правильные окончания в термине «Таблетки мышьяковистой кислоты, покрытые оболочкой» - Tabulett... Acid... arsenicos... obduct...:", opts: ["--ae; -um; -um; -ae", "--a; -i; -i; -a", "--as; -um; -i; -i", "--ae; -i; -i; -ae"], ans: 3 },
+    { q: "Выберите правильно переведенное название оксида:", opts: ["Calcii oxydum", "Oxydum Magnium", "Plumbum oxydum", "Zincum oxydi"], ans: 0 },
+    { q: "Какое окончание подходит ко всем названиям в рецепте? Rp.: Naphthalan... 20,0 / Zinc... oxyd... / Amyl... Tritic... ana 10,0 / Misce. Da. Signa.", opts: ["--ae", "--um", "--i", "--us"], ans: 2 },
+    { q: "Выберите перевод, соответствующий русскому «Очищенная сера»:", opts: ["Sulfur purum", "Sulfur praecipitatum", "Sulfur reductum", "Sulfur depuratum"], ans: 3 },
+    { q: "В латинских названиях оксидов, пероксидов и гидроксидов групповое наименование оксида пишется в:", opts: ["Nom.sing.", "Gen.sing.", "Acc.plur.", "Nom.plur."], ans: 0 },
+    { q: "В рецептурной строке названия кислот пишутся с окончанием:", opts: ["--um", "--is", "--i", "--us"], ans: 2 },
+    { q: "Русскому термину «Свинцовый пластырь» соответствует латинский:", opts: ["emplastrum Epilini", "emplastrum Plumbi", "emplastrum Cupri", "emplastrum adhesivum"], ans: 1 },
+    { q: "Латинскому названию \"Acidum nitrosum\" соответствует русское:", opts: ["сернистая кислота", "азотная кислота", "никотиновая кислота", "азотистая кислота"], ans: 3 },
+    { q: "Названия бескислородных кислот образуется с помощью добавления к прилагательному приставки ...- и суффикса -...:", opts: ["hyper-; -idum", "an-; -icum", "hydro-; -icum", "hydro-; -i"], ans: 2 },
+    { q: "Вставьте непереведённое слово в рецепте: Recipe: Solutionis Hydrogenii peroxydi разведённого 50 ml. Da. Signa", opts: ["depuratae", "dilutae", "praecipitatae", "flavae"], ans: 1 },
+    { q: "Выберите правильный перевод рецепта: Возьми: Корня алтея / Цветков ромашки по 100,0 / Семян льна 5,0 / Смешай, пусть образуется сбор / В. О.", opts: ["Rp.: Radicis Althaeae / Floris Chamomillae ana 100.0 / Seminis Lini 5.0 / M., fiat species / D.S.", "Rp.: Radicum Althaeae / Florum Chamomillae ana 100.0 / Seminum Lini 5.0 / M., fiat species / D.S.", "Rp.: Radicis Althaeae / Florum Chamomillae ana 100.0 / Seminum Lini 5.0 / M., fiat species / D.S.", "Rp.: Radicis Althaeae / Florum Chamomillae ana 100.0 / Seminum Lini 5.0 / M., fiant species / D.S."], ans: 3 },
+    { q: "Если русское название химического элемента оканчивается на «-ий», то латинское имеет окончание:", opts: ["-us", "-ium", "-a", "-um"], ans: 1 },
+    { q: "Укажите название химического элемента «серебро»:", opts: ["Argentum, i n", "Ferrum, i n", "Cuprum, i n", "Iodum, i n"], ans: 0 },
+    { q: "Наименование какого химического элемента является исключением из правила:", opts: ["Calcium, i n", "Barium, i n", "Sulfur, uris n", "Aluminium, i n"], ans: 2 },
+    { q: "Выберите верно написанное название соли:", opts: ["Morphinum hydrochloridum", "Morphini hydrochloridi", "Morphini hydrochloridum", "Morphinum hydrochloricum"], ans: 2 },
+    { q: "Выберите правильно написанную соль:", opts: ["Oleandomicinum phosphas", "Oleandomycini phosphatis", "Oleandomycini phosphas", "Oleandomicyni phosphas"], ans: 2 },
+    { q: "Выберите название аниона соли: «Codeini ...».", opts: ["fosfas", "phosphatum", "phosphatis", "phosphas"], ans: 3 },
+    { q: "Допишите пропущенное слово в термине «основной карбонат магния» - Magnesii ...:", opts: ["carbonatis", "subcarbonas", "carbonas", "subcarbonatis"], ans: 1 },
+    { q: "Укажите правильно написанное название фармацевтического термина «раствор этазола-натрия»:", opts: ["Solutio Natrii - aethazoli", "Solutio Aethazoli - natrii", "Solutio Aethazolum - natrium", "Solutionis Aethazoli - natrii"], ans: 1 },
+    { q: "Укажите правильный суффикс в названии соли «хлористоводородный морфин» - Morphini hydrochlor...:", opts: ["-icum", "-as", "-is", "-idum"], ans: 3 },
+    { q: "Укажите верный перевод фармацевтического термина «основной галлат висмута»:", opts: ["Vismuthi gallatis", "Bismuthi subgallas", "Bismuthi gallas", "Bismuthi subgallatis"], ans: 1 },
+    { q: "В латинских и русских названиях солей наименование аниона представлено существительным в:", opts: ["родительном падеже единственного числа", "именительном падеже единственного числа", "винительном падеже единственного числа", "родительном падеже множественного числа"], ans: 1 },
+    { q: "Выберите суффикс аниона соли, соответствующий русскому --ат.", opts: ["-as", "-atis", "-atum", "--at"], ans: 0 },
+    { q: "Наименование анионов солей на --idum -- это существительное:", opts: ["среднего рода III склонения", "мужского рода II склонения", "среднего рода II склонения", "среднего рода IV склонения"], ans: 2 },
+    { q: "Наименования анионов солей на --as и --is -- это существительные:", opts: ["среднего рода II склонения", "среднего рода III склонения", "мужского рода III склонения", "женского рода III склонения"], ans: 2 },
+    { q: "Названия анионов основных солей образуются при помощи приставки:", opts: ["hydro", "ana", "sub", "supra"], ans: 2 },
+    { q: "В латинских и русских названиях солей наименование катиона представлено существительным в:", opts: ["родительном падеже единственного числа", "именительном падеже единственного числа", "винительном падеже единственного числа", "родительном падеже множественного числа"], ans: 0 },
+    { q: "Укажите, в какой строке рецепта есть ошибки: Rp.: Solutio Aethazoli Natrii 10% 5 ml / Da tales doses numero 6 in ampullis / Signa.", opts: ["в первой", "во второй", "в третьей", "в четвёртой"], ans: 0 },
+    { q: "Вставьте в рецепт непереведённое слово: Rp.: Extracti Belladonnae 0,01 / Bismuthi subnitratis / ... ana 0,25 / Da tales doses numero 10 / Signa.", opts: ["Phenylsalicylati", "Phenylsalicylatis", "Phenylii salicylatis", "Phenylii salicylas"], ans: 2 },
+    { q: "Выберите подходящее окончание: Recipe: Morphini hydrochloridi 0,15 / Apomorphini hydrochloridi 0,05 / Acidi hydrochlor... diluti 1 ml / Aquae destillatae ad 200 ml / Misce. Da. Signa.", opts: ["-idi", "-icum", "-ici", "-i"], ans: 2 },
+    { q: "В каких строках рецепта допущены ошибки: Rp.: Extracti Belladonae 0,02 / Xerophormii 0,1 / Zinci sulphatis 0,05 / Glicerini 0,12 / Oleum Cacao 2,0 / Misce, fiant suppositorium / Da tales dosis numero 10 / Signаtur.", opts: ["в каждой строчке", "в третьей", "в пятой", "в первой"], ans: 0 },
+    { q: "Укажите правильно выписанный рецепт:", opts: ["Recipe: Natrii oxacillini 0,25 / Da tales doses numero 6 / Signa", "Recipe: Oxacillini-natrii 0,25 / Da tales doses numero 6 / Signa", "Recipe: Oxacillinum-natrii 0,25 / Da tales doses numero 6 / Signa.", "Recipe: Oxacyllini-natrii 0,25 / Da tales doses numero 6 / Signa."], ans: 1 },
+    { q: "Укажите правильно написанный рецепт:", opts: ["Rp.: Solutio Aethylmorphini hydrochloridi 2% 10 ml / D. S.", "Rp.: Solutionis Ethylmorphinum hydrochloridum 2% 10 ml / D. S.", "Rp.: Solutionis Aethylmorphini hydrochloridum 2% 10 ml / D. S.", "Rp.: Solutionis Aethylmorphini hydrochloridi 2% 10 ml / D. S."], ans: 3 },
+    { q: "Укажите правильно выписанный рецепт на мазь основного нитрата висмута:", opts: ["Rp.: Unguenti Vismuti nitratis 10% 25,0 / Da. Signa.", "Rp.: Unguenti Bismuti nitratis 10% 25,0 / Da. Signa.", "Rp.: Unguenti Bismuthi subnitratis 10% 25,0 / Da. Signa.", "Rp.: Unguenti Bismuthi subnitras 10% 25,0 / Da. Signa."], ans: 2 },
+    { q: "Укажите правильно выписанный рецепт:", opts: ["Rp.: Solutio Aethazoli-natrii 10 ml / Da tales doses numero 6 in ampullis / Signa.", "Rp.: Solutionis Natrii-aethazoli 10 ml / Da tales doses numero 6 in ampullis / Signa.", "Rp.: Solutionis Aethazoli-natrii 10 ml / Da tales doses numero 6 in ampullis / Signa.", "Rp.: Solutionis Aetazoli-natrii 10 ml / Da tales doses numero 6 in ampullis / Signa."], ans: 2 },
+    { q: "Укажите основную соль:", opts: ["Plumbi subacetas", "Morphini hydrochloridum", "Benzylpenicillinum-kalium", "Zinci oxydum"], ans: 0 },
+    { q: "Выберите правильно написанную соль:", opts: ["Coffeini-natrii benzoas", "Coffeinum-natrii benzoas", "Cofeinum-natrii benzoas", "Coffeinum-natrium benzoas"], ans: 1 },
+    { q: "«Гепарина натриевая соль» по-латински это:", opts: ["Natrii heparinum", "Heparinum-natrium", "Heparini-natrii", "Natrium-heparinum"], ans: 1 },
+    { q: "Выберите правильно переведенный рецепт: Возьми: Растворимого сукцината левомицетина -- натрия 0,5. Выдай такие дозы числом 5. Обозначь", opts: ["Recipe: Succinatis Laevomycetinii-natrii solubilis 0,5 Da tales doses numero 5 Signa", "Recipe: Laevomycetinum-natrium succinatis solubilis 0,5 Da tales doses numero 5 Signa", "Recipe: Solubilis Laevomycetini-natrii succinatis 0,5 Da tales doses numero 5 Signa", "Recipe: Laevomycetini-natrii succinatis solubilis 0,5 Da tales doses numero 5 Signa"], ans: 3 },
+    { q: "Укажите верные соответствия между номенклатурными наименованиями лекарственных средств и классом химических соединений:", opts: ["Plumbi subacetas основная соль", "Oxacillinum-natrium органическая соль натрия", "Calcii hydroxydum кислота", "Acidum hydrochloricum гидроксид"], ans: [0, 1] },
+    { q: "Выберите правильно написанное название эфира «метилсалицилат»:", opts: ["Methylsalicylas", "Methylii salicylas", "Methyli salicylas", "Methylii salicylatis"], ans: 1 },
+    { q: "Выберите правильно написанное название фармацевтического термина:", opts: ["Solutio Natrii chloridi isotonicus", "Solutio Natrii chloridum isotonica", "Solutionis Natrii chloridi isotonica", "Solutio Natrii chloridi isotonica"], ans: 3 },
+    { q: "Укажите название соли, в состав которого входит частотный отрезок со значением «вещество, -радикал»:", opts: ["Furaginum-kalium", "Benzylpenicillinum-natrium", "Neomycini sulfas", "Morphini hydrochloridum"], ans: 1 },
+    { q: "В русских названиях бескислородных кислот присутствует концовка:", opts: ["-овая", "-ная", "-истая", "-водородная"], ans: 3 },
+    { q: "Названия эфиров на латинском языке состоят из двух слов, а в русском:", opts: ["из двух", "из трёх", "из одного", "из четырёх"], ans: 2 },
+    { q: "«Натриевая соль барбитала» по-латински:", opts: ["Sal Natrii barbitali", "Barbitalum-natrii", "Natrii-barbitalum", "Barbitalum-natrium"], ans: 3 },
+    { q: "Все указанные соли -- основные, кроме:", opts: ["Bismuthi subgallas", "Bismuthi subnitras", "Ferri sublactas", "Codeini phosphas"], ans: 3 },
+    { q: "Укажите название соли, в состав которой входит частотный отрезок со значением «антимикробный сульфаниламид»:", opts: ["Retinoli palmitas", "Methylmethioninsulfonii chloridum", "Laevomycetini-natrii succinas", "Cefotaxinum-natrium"], ans: 1 },
+    { q: "В какой строке рецепта указана соль: Recipe: Magnii oxydi / Natrii hydrocarbonatis / Extracti Belladonnae / Misce, fiat pulvis", opts: ["в первой", "во второй", "в третьей", "в четвёртой"], ans: 1 },
+    { q: "«Фосфат эритромицина» по-латински:", opts: ["Phosphas Erythromycini", "Erytromycini phosphas", "Erythromicini phosphas", "Erythromycini phosphas"], ans: 3 },
+    { q: "Выберите соответствующий суффикс аниона в названии соли -- «сульфат атропина» Atropini sulf...:", opts: ["atis", "is", "as", "idum"], ans: 2 },
+    { q: "Допишите название катиона соли -- ... hydrochloridum:", opts: ["Morphinum", "Morphini", "Morfinum", "Morphyni"], ans: 1 },
+    { q: "Допишите название соли -- Natrii (бензоат):", opts: ["benzoatis", "benzoatum", "benzonas", "benzoas"], ans: 3 },
+    { q: "Выберите правильный перевод названия соли «раствор основного ацетата свинца»:", opts: ["solutio Plumbi acetatis basillaris", "solutionis Plumbi subacetas", "solutio Plumbi subacetatis", "solutionis Plumbi subacetatis"], ans: 2 },
+    { q: "Допишите окончание в термине «Chymotrypsinum crystallis...»:", opts: ["-atus", "-atum", "-as", "-um"], ans: 1 },
+    { q: "Словосочетанию «Верхушка каменистой части» соответствует:", opts: ["apex partis petrōsae", "apex petrōsae partis", "apex petrōsis partis", "apex partae petrōsae"], ans: 0 },
+    { q: "Словосочетанию «Поперечная связка первого шейного позвонка» соответствует:", opts: ["ligamentis transversis atlantis", "ligamentum atlantis transversum", "transversum ligamentum atlantis", "ligamentum transversum atlantum"], ans: 1 },
+    { q: "Словосочетанию «Капсула височнонижнечелюстного сустава» соответствует:", opts: ["capsŭlis articulatiōnis temporomandibulāris", "capsŭlae articulatiōnes temporomandibulāres", "capsŭla temporomandibulāris articulatiōnis", "capsŭla articulatiōnis temporomandibulāris"], ans: 3 },
+    { q: "Словосочетанию «Мышца, опускающая угол рта» соответствует:", opts: ["Músculus depressor ángulis oris", "Músculus depressor ángulus oris", "Músculus depressor ánguli oris", "Músculus depressor ángulum oris"], ans: 2 },
+    { q: "Словосочетанию «Мышца, поднимающая перегородку носа» соответствует:", opts: ["Músculus cremastеr nasi septum", "Músculus cremastеr septi nasi", "Músculus cremastus septi nasi", "Músculus cremastеr septum nasi"], ans: 1 },
+    { q: "Словосочетанию «Короткий лучевой разгибатель запястья» соответствует:", opts: ["Brevis radialis extensor carpi", "Musculus extensor carpus radialis brevis", "Extensor carpis radialis brevis", "Musculus extensor carpi radialis brevis"], ans: 3 },
+    { q: "Словосочетанию «Мышца, поднимающая мягкое небо» соответствует:", opts: ["Musculus levator palatum molle", "Musculus levator palati molli", "Musculus levator palati mollis", "Musculus levator mollis palatis"], ans: 2 },
+    { q: "Словосочетанию «Мышца, опускающая перегородку носа» соответствует:", opts: ["Musculus depressor septum nasi", "Musculus depressor septi nasi", "Musculus depressor septi nasus", "Musculus depressor septum nasum"], ans: 1 },
+    { q: "Словосочетанию «Срединный небный шов» соответствует:", opts: ["Sutura palatina mediana", "Suturaе palatinaе medianaе", "Palatina mediana sutura", "Mediana palatina sutura"], ans: 0 },
+    { q: "Словосочетанию «Перелом правой плечевой кости» соответствует:", opts: ["Fractura dextra humĕri", "Fracturae humĕri dextri", "Fractura humĕri dextri", "Fractura humĕri sinistri"], ans: 2 },
+    { q: "Словосочетанию «Недостаточность cтворок клапанов аорты» соответствует:", opts: ["Insufficientia valvulae aortae", "Insufficientia valvularum aortae", "Рrominentia valvularum aortae", "Insufficientia valvularum valvulae aortae"], ans: 1 },
+    { q: "Словосочетанию «Рак пищевода это злокачественная болезнь» соответствует:", opts: ["Cancer oesophagus mor­bus malignus est", "Cancer oesophagi mor­bus malignus", "Cancer oesophagi mor­bus molestus est", "Cancer oesophagi mor­bus malignus est"], ans: 3 },
+    { q: "Словосочетанию «Вазелиновое масло и камфорное масло это лекарственные средства» соответствует:", opts: ["Vaseini оleum et camphoratum oleum remedia sunt", "Oleum Vaseini et oleum camphoratum remedium sunt", "Oleum Vaseini et oleum camphoratum remedia sunt", "Oleum Vaseini et oleum camphoratum remedia est"], ans: 2 },
+    { q: "Словосочетанию «Таблетки тетрациклина и нистатина, покрытые оболочкой» соответствует:", opts: ["Tabulettae Tetracyclinum et Nystatinum obductum", "Tabulettae Tetracyclini et Nystatini obductae", "Tabulettas Tetracyclini et Nystatini obductas", "Tabulettae «Tetracyclini et Nystatini» obductae"], ans: 1 },
+    { q: "Словосочетанию «Выдай камфорное масло в темной склянке» соответствует:", opts: ["Da oleum camphoratum in vitrо nigrо", "Detur oleum camphoratum in vitris nigris", "Da oleo camphorato in vitro nigro", "Da olei camphorati in vitro nigro"], ans: 0 },
+    { q: "Словосочетанию «Эрозия шейки матки» соответствует:", opts: ["Erosiа cervicis uteri", "Erosio colli utĕri", "Erosio cervicis utĕri", "Erosio cervix utĕri"], ans: 2 },
+    { q: "Словосочетанию «Вскрытие спинного мозга» соответствует:", opts: ["Sectio medullae spinalае", "Sectiones medullа spinalis", "Sectio medullae dorsalis", "Sectio medullae spinalis"], ans: 3 },
+    { q: "Словосочетанию «Перепончатая часть мужской уретры» соответствует:", opts: ["Pars membranaceus urethrae masculinae", "Pars membranacea urethrae masculinae", "Pars membranaceum urethrae masculinae", "Membranacea pars masculinae urethrae"], ans: 1 },
+    { q: "Словосочетанию «Кесарево сечение» соответствует:", opts: ["Sectio caesarea", "Ruptura cervicis", "Ruptura cervix", "Sectionis caesarea"], ans: 0 },
+    { q: "Словосочетанию «Нашатырный спирт» соответствует:", opts: ["Liquor Ammonii anisati", "Solutio Ammonii anisati", "Solutio Ammonii caustici", "Liquor Ammonii caustici"], ans: 2 },
+    { q: "Словосочетанию «Сухой экстракт мужского папоротника» соответствует:", opts: ["Extractum Filiх mas spissum", "Extractum Filicis maris spissum", "Extracti Filicis maris spissi", "Extractum Filicis masculinum spissum"], ans: 1 },
+    { q: "Словосочетанию «Жидкий экстракт алоэ для инъекций» соответствует:", opts: ["Extractum Aloe fluidum pro injectionibum", "Extractum Aloes fluidum pro injectiones", "Fluidum extractum Aloes pro injectionibus", "Extractum Aloes fluidum pro injectionibus"], ans: 3 },
+    { q: "Словосочетанию «Возьми достаточное количество масляной эмульсии» соответствуют:", opts: ["Recipe emulsionis oleosis quantum satis", "Recipe emulsi oleosi quantum satis", "Recipe quantum satis emulsio oleosa", "Recipe emulsionis oleosae quantum satis"], ans: 1 },
+    { q: "Словосочетанию «Настой листьев наперстянки» соответствует:", opts: ["Infusum foliorum Digitalis", "Infusum folium Digitalis", "Decoctum foliorum Digitalis", "Tinctura foliorum Digitalis"], ans: 0 },
+    { q: "Словосочетанию «Возьми синтомицинового линимента с новокаином» соответствует:", opts: ["Recipere linimenti Synthomycini cum Novocaino", "Recipe linimentum Synthomycini cum Novocaini", "Recipe linimenti Synthomycini cum Novocaino", "Recipe Synthomycini linimenti cum Novocaini"], ans: 2 },
+    { q: "Словосочетанию «Возьми таблетки седальгина числом 20» соответствует:", opts: ["Recipe: Tabulettas \"Sedalginum\" numero 20", "Recipe tabulettas \"Sedalgini\" numero 20", "Recipe tabulettae Sedalginum numero 20", "Recipe tabulettas Sedalgini numero 20"], ans: 3 },
+    { q: "Словосочетанию «Нашатырно анисовые капли» соответствует:", opts: ["Liquor Ammonii anisati", "Guttae Ammonii anisati", "Solutio Ammonii caustici", "Liquor Ammonii caustici"], ans: 0 },
+    { q: "Выберите термины с несогласованным определением:", opts: ["basis externa", "angulus sterni", "ligamentum transversum", "os thoracis", "os ethmoidale"], ans: [1, 3] },
+    { q: "В термине \"тело малоберцовой кости\" -- \"corpus fibul...\" существительное заканчивается на:", opts: ["-- ae", "-- i", "-- is", "-- us"], ans: 0 },
+    { q: "В термине \"глазное яблоко\" -- \"bulbus ocul...\" существительное заканчивается на:", opts: ["-- ae", "-- i", "-- is", "-- us"], ans: 1 },
+    { q: "В термине \"верхушка легкого\" -- \"apex pulmon...\" существительное заканчивается на:", opts: ["-- is", "-- e", "-- es", "-- um"], ans: 0 },
+    { q: "В термине \"мышцы, поднимающие ребра\" musculi levatores cost... существительное заканчивается на:", opts: ["-- arum", "-- erum", "-- orum", "-- um"], ans: 3 },
+    { q: "В термине \"связки пальцев\" -- ligamenta digit... существительное заканчивается на:", opts: ["-- a", "-- i", "-- orum", "-- um"], ans: 2 },
+    { q: "В термине \"костный мозг\"- \"medulla oss...\" существительное заканчивается на:", opts: ["-- um", "-- ium", "-- uum", "-- erum"], ans: 1 },
+    { q: "В термине \"синусы аорты\"- «sin... aortae» существительное заканчивается на:", opts: ["-- a", "-- um", "-- ua", "-- us"], ans: 3 },
+    { q: "В термине \"перегородка пазух\" -- septum sin... существительное заканчивается на:", opts: ["-- orum", "-- um", "-- uum", "-- us"], ans: 2 },
+    { q: "В термине \"костная перегородка носа\" -- \"septum nasi osse...\" у прилагательного окончание:", opts: ["-- a", "-- is", "-- us", "-- um"], ans: 3 },
+    { q: "В термине \"в правом глазу\" -- \"in oculo dextr...\" у прилагательного окончание:", opts: ["-- i", "-- um", "-- o", "-- orum"], ans: 2 },
+    { q: "В термине \"глубокая часть\" -- \"pars profund...\" у прилагательного окончание:", opts: ["-- us", "-- a", "-- um", "-- is"], ans: 1 },
+    { q: "В термине \"внутренние стенки\" -- \"parietes intern...\" у прилагательного окончание:", opts: ["-- ae", "-- i", "-- is", "-- es"], ans: 1 },
+    { q: "В термине \"скуловые кости\" -- \"ossa zygomatic...\" у прилагательного окончание:", opts: ["-- a", "-- ae", "-- ia", "-- ua"], ans: 0 },
+    { q: "В термине «подъязычный нерв» - «nervus ...» употребляется прилагательное:", opts: ["hypoglossus", "sublingualis", "hyoideus", "hypolingualis"], ans: 0 },
+    { q: "В термине «подъязычная кость» - os ... употребляется прилагательное:", opts: ["hypoglossum", "sublinguale", "hyoideum", "hypolingualis"], ans: 2 },
+    { q: "В термине \"резцы\" -- \"dentes incisiv...\" прилагательное заканчивается на:", opts: ["-- a", "-- es", "-- i", "-- is"], ans: 2 },
+    { q: "В термине \"остистое отверстие\" -- \"foramen spinos...\" прилагательное заканчивается на:", opts: ["-- i", "-- a", "-- um", "-- is"], ans: 2 },
+    { q: "В термине \"поперечные отростки\" - \"processus transvers...\" прилагательное имеет окончание:", opts: ["-- a", "-- es", "-- i", "-- us"], ans: 2 },
+    { q: "В термине \"пазуха полых вен\" -- \" sinus venarum cav...\" прилагательное имеет окончание:", opts: ["-- e", "-- arum", "-- orum", "-- erum"], ans: 1 },
+    { q: "Укажите правильную последовательность слов в термине \"мышца, поднимающая щитовидную железу\":", opts: ["musculus levator glandulae thyroideae", "musculus levator glandula thyroidea", "musculus levator thyroideam glandulam", "musculus levator thyroideaarum glandularum"], ans: 0 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"резцовое отверстие небного отростка\":", opts: ["foramen incisiva processus palatinus", "foramen incisivi palatini processus", "foramen incisivum processus palatini", "foramen incisivus processus palatini"], ans: 2 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"синус полых вен правого предсердия\":", opts: ["sinus venae cavae atrii dextri", "sinus venarum cavarum atrium dextrum", "sinus cavarum venarum dextri atrii", "sinus venarum cavarum atrii dextri"], ans: 3 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"костный лабиринт внутреннего уха\":", opts: ["osseus labyrinthus internae auris", "labyrinthus osseus auris internae", "labyrinthus osseus auris internis", "labyrinthus osseis auris internis"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"сумки средней ягодичной мышцы\":", opts: ["bursae medii glutei musculi", "bursa musculus gluteus media", "bursae musculi glutei medii", "bursae glutei medii musculorum"], ans: 2 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"наружная косая мышца живота\":", opts: ["externus obliquus musculum abdominis", "musculus obliquus externus abdomen", "musculus abdominis obliquis externis", "musculus abdominis obliquus externus"], ans: 3 },
+    { q: "В термине \"спинной мозг\" -- \"medulla spinal...\" прилагательное заканчивается на:", opts: ["-- a", "-- ia", "-- is", "-- e"], ans: 2 },
+    { q: "В термине \"крестцовые кости\" -- \"ossa ... \" употребляется прилагательное:", opts: ["sacralis", "sarcale", "sacrales", "sacralia"], ans: 3 },
+    { q: "В термине \"лобный бугор\" -- \"tuber ... \" употребляется прилагательное:", opts: ["frontale", "frontales", "frontalia", "frontalium"], ans: 0 },
+    { q: "В термине \"латеральные поверхности\" -- \"facies lateral... \" у прилагательного окончание:", opts: ["-- es", "-- is", "-- ium", "-- ia"], ans: 0 },
+    { q: "В термине \"крестцовые рожки\" -- \"cornua sacral... \" у прилагательного окончание:", opts: ["-- a", "-- e", "-- ia", "-- ium"], ans: 2 },
+    { q: "В термине \"ость клиновидной кости\" -- \"spina ossis sphenoidal... \" у прилагательного окончание:", opts: ["-- e", "-- i", "-- is", "-- ium"], ans: 2 },
+    { q: "В термине \"позвоночные суставы\" -- \"articulationes vertebral...\" прилагательное заканчивается:", opts: ["-- a", "-- ae", "-- es", "-- i"], ans: 2 },
+    { q: "В термине «овальное отверстие» -- \"foramen oval...\" у прилагательного окончание:", opts: ["-- ia", "-- e", "-- um", "-- us"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"короткая мышца, отводящая большой палец руки\":", opts: ["musculus brevis digiti manus adductor", "musculus pollicis manus adductor brevis", "musculus digiti manus abductor brevis", "musculus pollicis manus abductor brevis"], ans: 3 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"короткая головка двуглавой мышцы плечевой кости\":", opts: ["capitis brevis musculi humeri bicipitis", "caput breve musculi humeri biceps", "caput breve musculi humeri bicipitis", "caput brevis musculi humeri bicipitis"], ans: 2 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"вырезка хряща слухового хода\":", opts: ["incisura cartilagina meatus acusticus", "incisura cartilaginis meatus acustici", "incisura cartilaginis acusticus meatus", "incisura meatus acusticis cartilaginis"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине: \"поверхностные сгибатели пальцев кисти\":", opts: ["M. flexores digitorum manus superficiales", "M. flexores digiti manus superficiales", "M. flexor digitorum manus superficialis", "M. flexores superficiales digitus manus"], ans: 0 },
+    { q: "В термине \"передние связки\" -- \"ligamenta anterior...\" прилагательное имеет окончание:", opts: ["-- a", "-- es", "-- ia", "-- ius"], ans: 0 },
+    { q: "В термине «верхнее отверстие» -- \"foramen ... \" употребляется прилагательное:", opts: ["inferior", "inferius", "superior", "superius"], ans: 3 },
+    { q: "В термине \"задняя поверхность\" -- \"facies... \" употребляется прилагательное:", opts: ["anterior", "posterior", "inferior", "superior"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"нижняя связка головки малоберцовой кости\":", opts: ["inferius ligamentus capitis fibulae", "ligamentum capitis inferius fibulae", "ligamentum capitis inferior fibula", "ligamenta capitis inferius fibula"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"задний кожный нерв плеча\":", opts: ["nervus brachius cutaneus posterius", "nervus brachii cutanei posterior", "nervus brachii cutaneus posterior", "cutaneus posterior nervi brachii"], ans: 2 },
+    { q: "Отметить верные соответствия:", opts: ["musculus adductor -- мышца приводящая", "musculus abductor -- мышца отводящая", "musculus sphincter -- мышца сгибатель", "musculus flexor -- мышца сжиматель"], ans: [0, 1] },
+    { q: "Отметить верные соответствия:", opts: ["musculus levator -- мышца поднимающая", "mesculus tensor -- мышца вращающая", "musculus rotator -- мышца расширяющая", "musculus depressor -- мышца опускающая"], ans: [0, 3] },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине \"передняя глубокая височная артерия\":", opts: ["arteriae temporale profundae anterior", "arteria temporalis profunda anterior", "arteria anterior profunda temporale", "arteria temporalis profundis anterior"], ans: 1 },
+    { q: "Укажите правильную последовательность слов c верными окончаниями в термине «верхняя сумка двуглавой мышцы бедра»:", opts: ["bursa superior musculis femoris bicipitis", "bursa superior musculi femoris biceps", "bursa superius musculus femoris bicipitis", "bursa superior musculi femoris bicipitis"], ans: 3 },
+    { q: "Найдите правильную последовательность слов c верными окончаниями в термине \"нижний край левого легкого\":", opts: ["margo inferius pulmonis sinistri", "margo inferior pulmo sinister", "margo inferior pulmonis sinistri", "inferior margo dexstri pulmonis"], ans: 2 },
+    { q: "Существительное «meninx, ngis, f» в Gen. pl. имеет форму:", opts: ["meningium", "meningum", "meningia", "meninges"], ans: 0 },
+    { q: "Подберите нужное окончание в термине «succus Alo__ » -- цветки алоэ:", opts: ["-is", "-ёs", "--e", "-ae"], ans: 1 }
+];
+
+const container = document.getElementById('questions-container');
+const userAnswers = {};
+const questionStates = {};
+
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function renderQuestions() {
+    container.innerHTML = '';
+    questions.forEach((item, idx) => {
+        const isMulti = Array.isArray(item.ans);
+        const opts = item.opts.map((o, oi) => ({ text: o, origIdx: oi }));
+        const origCorrect = item.ans;
+        shuffleArray(opts);
+        let newCorrect;
+        if (isMulti) {
+            newCorrect = origCorrect.map(origIdx => opts.findIndex(o => o.origIdx === origIdx));
+        } else {
+            newCorrect = opts.findIndex(o => o.origIdx === origCorrect);
+        }
+        const letters = 'abcd'.split('');
+        const inputType = isMulti ? 'checkbox' : 'radio';
+
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        block.id = 'q-block-' + idx;
+        block.dataset.correct = JSON.stringify(newCorrect);
+        block.dataset.multi = isMulti;
+        block.innerHTML = `
+            <div class="q-text"><span class="q-num">${idx + 801}.</span>${item.q}</div>
+            <div class="options">
+                ${opts.map((o, oi) => `
+                    <label class="option" data-q="${idx}" data-o="${oi}">
+                        <input type="${inputType}" name="q${idx}" value="${oi}">
+                        <span class="option-letter">${letters[oi]}</span>
+                        <span class="option-text">${o.text}</span>
+                    </label>
+                `).join('')}
+            </div>
+            <div class="feedback" id="fb-${idx}"></div>
+        `;
+        container.appendChild(block);
+    });
+
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.addEventListener('click', function(e) {
+            const qIdx = parseInt(this.dataset.q);
+            const oIdx = parseInt(this.dataset.o);
+            const block = document.getElementById('q-block-' + qIdx);
+            const isMulti = block.dataset.multi === 'true';
+            const input = this.querySelector('input');
+            const correctAns = JSON.parse(block.dataset.correct);
+
+            if (isMulti) {
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+            } else {
+                block.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                input.checked = true;
+            }
+
+            if (isMulti) {
+                if (!userAnswers[qIdx]) userAnswers[qIdx] = [];
+                if (input.checked) {
+                    if (!userAnswers[qIdx].includes(oIdx)) userAnswers[qIdx].push(oIdx);
+                } else {
+                    userAnswers[qIdx] = userAnswers[qIdx].filter(v => v !== oIdx);
+                }
+            } else {
+                userAnswers[qIdx] = oIdx;
+            }
+
+            checkSingleQuestion(qIdx, block, correctAns, isMulti);
+        });
+    });
+}
+
+function checkSingleQuestion(idx, block, correctAns, isMulti) {
+    const fb = document.getElementById('fb-' + idx);
+    block.querySelectorAll('.option').forEach(o => o.classList.remove('correct-highlight'));
+
+    if (isMulti) {
+        const userSet = userAnswers[idx] || [];
+        if (userSet.length === 0) {
+            fb.classList.remove('show', 'correct-fb', 'incorrect-fb');
+            block.classList.remove('correct', 'incorrect');
+            questionStates[idx] = 'unanswered';
+        } else {
+            const sortedUser = [...userSet].sort();
+            const sortedCorrect = [...correctAns].sort();
+            const isCorrect = sortedUser.length === sortedCorrect.length &&
+                              sortedUser.every((v, i) => v === sortedCorrect[i]);
+            if (isCorrect) {
+                fb.textContent = '✅ Правильно!';
+                fb.className = 'feedback show correct-fb';
+                block.classList.add('correct');
+                block.classList.remove('incorrect');
+                questionStates[idx] = 'correct';
+            } else {
+                fb.textContent = '❌ Неправильно. Правильные ответы выделены зелёным.';
+                fb.className = 'feedback show incorrect-fb';
+                block.classList.add('incorrect');
+                block.classList.remove('correct');
+                questionStates[idx] = 'incorrect';
+                correctAns.forEach(ci => {
+                    const optEl = block.querySelector(`.option[data-o="${ci}"]`);
+                    if (optEl) optEl.classList.add('correct-highlight');
+                });
+            }
+        }
+    } else {
+        if (userAnswers[idx] === undefined) {
+            fb.classList.remove('show', 'correct-fb', 'incorrect-fb');
+            block.classList.remove('correct', 'incorrect');
+            questionStates[idx] = 'unanswered';
+        } else if (userAnswers[idx] === correctAns) {
+            fb.textContent = '✅ Правильно!';
+            fb.className = 'feedback show correct-fb';
+            block.classList.add('correct');
+            block.classList.remove('incorrect');
+            questionStates[idx] = 'correct';
+        } else {
+            fb.textContent = '❌ Неправильно. Правильный ответ выделен зелёным.';
+            fb.className = 'feedback show incorrect-fb';
+            block.classList.add('incorrect');
+            block.classList.remove('correct');
+            questionStates[idx] = 'incorrect';
+            const optEl = block.querySelector(`.option[data-o="${correctAns}"]`);
+            if (optEl) optEl.classList.add('correct-highlight');
+        }
+    }
+
+    updateGlobalScore();
+}
+
+function updateGlobalScore() {
+    const total = questions.length;
+    let correct = 0;
+    for (let i = 0; i < total; i++) {
+        if (questionStates[i] === 'correct') correct++;
+    }
+    document.getElementById('global-result').textContent =
+        `Результат: ${correct} из ${total} (${Math.round(correct/total*100)}%)`;
+}
+
+function resetAll() {
+    for (const key in userAnswers) delete userAnswers[key];
+    for (const key in questionStates) delete questionStates[key];
+    document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.checked = false;
+    });
+    document.querySelectorAll('.option').forEach(o => {
+        o.classList.remove('selected', 'correct-highlight');
+    });
+    document.querySelectorAll('.question-block').forEach(b => b.classList.remove('correct', 'incorrect'));
+    document.querySelectorAll('.feedback').forEach(f => f.className = 'feedback');
+    updateGlobalScore();
+}
+
+renderQuestions();
+</script>
+</body>
+</html>
