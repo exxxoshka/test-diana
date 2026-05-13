@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical English Test (1–200)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; line-height: 1.6; }
+        .top-nav { background: #1a365d; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
+        .top-nav .nav-links { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .top-nav a, .top-nav span { display: inline-block; padding: 8px 18px; border-radius: 6px; font-weight: 500; text-decoration: none; color: #fff; background: #2b6cb0; transition: 0.2s; }
+        .top-nav a:hover { background: #3182ce; }
+        .top-nav span.active { background: #38a169; cursor: default; }
+        .top-nav .lang-btn { background: #e53e3e; font-weight: 700; }
+        .top-nav .lang-btn:hover { background: #c53030; }
+        .container { max-width: 950px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #1a365d; margin: 20px 0 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: #718096; margin-bottom: 30px; font-size: 16px; }
+        .question-block { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #3182ce; transition: 0.3s; }
+        .question-block.correct { border-left-color: #38a169; background: #f0fff4; }
+        .question-block.incorrect { border-left-color: #e53e3e; background: #fff5f5; }
+        .q-num { font-weight: 700; color: #3182ce; margin-right: 8px; }
+        .q-text { font-weight: 500; margin-bottom: 14px; font-size: 16px; }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fafafa; }
+        .option:hover { border-color: #3182ce; background: #ebf8ff; }
+        .option input[type="radio"] { display: none; }
+        .option-letter { width: 32px; height: 32px; border-radius: 50%; background: #edf2f7; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #4a5568; flex-shrink: 0; transition: 0.2s; }
+        .option.selected .option-letter { background: #3182ce; color: #fff; }
+        .option.correct-highlight { border-color: #38a169; background: #f0fff4; }
+        .option.correct-highlight .option-letter { background: #38a169; color: #fff; }
+        .option-text { flex: 1; }
+        .feedback { margin-top: 10px; padding: 8px 14px; border-radius: 6px; font-weight: 500; font-size: 14px; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct-fb { background: #c6f6d5; color: #22543d; }
+        .feedback.incorrect-fb { background: #fed7d7; color: #742a2a; }
+        .btn-group { text-align: center; margin: 30px 0; }
+        .btn { padding: 14px 40px; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; margin: 0 8px; }
+        .btn-reset { background: #e2e8f0; color: #4a5568; }
+        .btn-reset:hover { background: #cbd5e0; }
+        .result { text-align: center; font-size: 22px; font-weight: 700; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <a href="part1.html" class="lang-btn">🇷🇺 РУС</a>
+    <div class="nav-links">
+        <span class="active">ENG Test</span>
+    </div>
+</div>
+
+<div class="container">
+    <h1>🧪 Medical English Test</h1>
+    <p class="subtitle">Questions 1–200 • Instant Feedback</p>
+
+    <div id="questions-container"></div>
+
+    <div class="btn-group">
+        <button class="btn btn-reset" onclick="resetAll()">🔄 Reset All Answers</button>
+    </div>
+    <div class="result" id="global-result"></div>
+</div>
+
+<script>
+const questions = [
+    { q: "The results of the test ______ tomorrow.", opts: ["will announce", "announce", "will be announced", "were announced"], ans: 2 },
+    { q: "One or more tissues joined together to perform a specific function.", opts: ["Systems", "Muscles", "Organs", "Cells"], ans: 2 },
+    { q: "If a patient ______ high blood pressure, the doctor prescribes medication.", opts: ["has", "had", "will have", "would have"], ans: 0 },
+    { q: "...is the liquid part of the blood, consisting mostly of water. Its purpose is to transport the other blood cells along with other nutrients and hormones. It also supplies the fluid needed inside and around the body cells.", opts: ["Serum", "Platelets", "Leukocytes", "Plasma"], ans: 3 },
+    { q: "She ______ a report on the patient's condition right now.", opts: ["writes", "wrote", "is writing", "will write"], ans: 2 },
+    { q: "The major organs include nose, trachea, lungs, & diaphragm", opts: ["Nervous System", "Skeletal System", "Digestive System", "Respiratory System"], ans: 3 },
+    { q: "She ______ several research papers on infectious diseases.", opts: ["wrote", "has written", "writes", "is writing"], ans: 1 },
+    { q: "What does it mean when the body is maintaining homeostasis?", opts: ["The body is in a state of decline and instability", "The body is adapting to an external threat", "The body is experiencing rapid growth and change", "The body is functioning correctly and maintaining a stable internal environment"], ans: 3 },
+    { q: "She ______ for this hospital since she graduated from medical school.", opts: ["works", "is working", "has been working", "worked"], ans: 2 },
+    { q: "Blood vessels that return blood to the heart; called capacitance vessels because of their capacity for storing blood:", opts: ["Insula", "dermis", "Gland cells", "Veins"], ans: 3 },
+    { q: "While the team ______ the emergency procedure, the power suddenly ______.", opts: ["performed / went out", "was performing / went out", "had performed / goes out", "performs / is going out"], ans: 1 },
+    { q: "Made up of flattened membranous sacs stacked one on top of the other; receives proteins from the ER and prepares and packages them for export to other parts of the body,", opts: ["Lysosomes", "Ribosome", "Golgi Apparatus", "Mitochondria"], ans: 2 },
+    { q: "The doctor usually ______ patients in the morning.", opts: ["examines", "is examining", "examined", "will examine"], ans: 0 },
+    { q: "Hollow space within the larger ventral body cavity that contains the lungs (in pleural cavities) and heart (in the mediastinum)", opts: ["Pericardial cavity", "Abdominal cavity", "Thoracic cavity", "Pelvic cavity"], ans: 2 },
+    { q: "The patient, ______ was admitted yesterday, is recovering well.", opts: ["which", "who", "whom", "whose"], ans: 1 },
+    { q: "Study of the causes of diseases. Diseases have a variety of causes. Examples include bacteria, viruses, hazardous materials and personal habits.", opts: ["Diagnosis", "Anatomy", "Etiology", "Epidemiology"], ans: 2 },
+    { q: "The operation ______ yesterday by Dr. Smith.", opts: ["performs", "was performed", "has performed", "is performing"], ans: 1 },
+    { q: "A system that tells you what is going on in the world around you", opts: ["Circulatory system", "Respiratory system", "Skeletal system", "Nervous system"], ans: 3 },
+    { q: "You ______ take this medicine with food to avoid stomach irritation.", opts: ["should", "could", "would", "shall"], ans: 0 },
+    { q: "Part of the central nervous system that coordinates body activities.", opts: ["Brain", "Spinal Cord", "Liver", "Heart"], ans: 0 },
+    { q: "The lab technician ______ the blood samples when the power suddenly went out.", opts: ["analyzed", "was analyzing", "had analyzed", "has analyzed"], ans: 1 },
+    { q: "Complex muscle-and-nerve acts that produce movement (walking, writing, typing running etc.)", opts: ["Autonomic Functions", "Sensory Functions", "Motor Functions", "Speech"], ans: 2 },
+    { q: "The researchers ______ on this vaccine for two years before they finally ______ a breakthrough.", opts: ["were working / made", "have been working / had made", "had been working / made", "worked / have made"], ans: 2 },
+    { q: "Strengthen and support matrix. Types- Collagen, elastic, and reticular", opts: ["Epithelium tissue", "Cartilage", "Neurons", "Fibers (Connective)"], ans: 3 },
+    { q: "By 2030, this hospital ______ state-of-the-art equipment for over a decade.", opts: ["uses", "used", "will have been using", "has used"], ans: 2 },
+    { q: "Involuntary, no striations, uninucleated. Spindle shaped cells found in the walls of hollow structures.", opts: ["Irregular Connective Tissue", "Skeletal Tissue", "Smooth Tissue", "Cardiac Tissue"], ans: 2 },
+    { q: "The researchers ______ on this project for months before they finally ______ a breakthrough.", opts: ["were working / made", "have been working / had made", "had been working / made", "worked / have made"], ans: 2 },
+    { q: "Modified neurons in hypothalamus secrete them; transported to posterior pituitary (along neurons) for storage", opts: ["cortisol and aldosterone", "insulin and glucagon", "thyroxine and triiodothyronine (T3)", "oxytocin and Antidiuretic hormone (ADH)"], ans: 3 },
+    { q: "The doctor ordered a blood ______ to check the patient's glucose levels.", opts: ["injection", "test", "bandage", "scan"], ans: 1 },
+    { q: "The surgeon used a ______ during the operation.", opts: ["stethoscope", "scalpel", "crutch", "wheelchair"], ans: 1 },
+    { q: "The middle layer of the heart wall; composed of cardiac muscle", opts: ["Sensation", "Myocardium", "Cerebrum", "Periosteum"], ans: 1 },
+    { q: "I ______ this symptom in my practice before.", opts: ["didn't see", "haven't seen", "don't see", "wasn't seeing"], ans: 1 },
+    { q: "Chemicals secreted by glands and specialized cells of the endocrine system", opts: ["Long bones", "globins", "Hormones", "Arteries"], ans: 2 },
+    { q: "Look! The nurse ______ the patient's blood pressure now.", opts: ["checks", "is checking", "checked", "has checked"], ans: 1 },
+    { q: "Carry blood away from the heart.", opts: ["Veins", "Arteries", "Capillaries", "Arterioles"], ans: 1 },
+    { q: "Antibiotics ______ to treat bacterial infections.", opts: ["are used", "use", "used", "is used"], ans: 0 },
+    { q: "Part of autonomic nervous system responsible for involuntary daily functions", opts: ["parasympathetic", "sympathetic", "somatic", "sensory"], ans: 0 },
+    { q: "Among all symptoms, fever is ______ common.", opts: ["more", "most", "the most", "much"], ans: 2 },
+    { q: "Voluntary (striated skeletal muscle) and involuntary (smooth muscle tissue in walls of some organs).", opts: ["Types of Epithelial Tissue", "Types of Connective Tissue", "Types of Muscle Tissue", "Types of Nervous Tissue"], ans: 2 },
+    { q: "This is the hospital ______ my grandmother had surgery last year.", opts: ["where", "when", "which", "that"], ans: 0 },
+    { q: "These carry oxygen and carbon dioxide in the blood", opts: ["platelets", "red blood cells", "plasma", "lymphocytes"], ans: 1 },
+    { q: "The surgeon ______ the operation two hours ago.", opts: ["has completed", "completed", "completes", "was completing"], ans: 1 },
+    { q: "Structure includes 206 named bones and cartilage that connects and cushions joints.", opts: ["Integumentary System", "Cardiovascular System", "Muscular System", "Skeletal System"], ans: 3 },
+    { q: "The medical team ______ all night to save the patient's life.", opts: ["works", "worked", "has worked", "had been working"], ans: 3 },
+    { q: "The simplest structures in which the processes of life occur are", opts: ["organs", "tissues", "molecules", "cells"], ans: 3 },
+    { q: "The lab ______ the results by the end of the week, so we can discuss the treatment plan then.", opts: ["receives", "received", "will have received", "is receiving"], ans: 2 },
+    { q: "What are the functions of epithelial tissue?", opts: ["Facilitates muscle contraction", "Transports oxygen", "Protects, absorbs", "Provides structural support"], ans: 2 },
+    { q: "The patient was admitted to the ______ after the car accident.", opts: ["pharmacy", "emergency room", "laboratory", "cafeteria"], ans: 1 },
+    { q: "The mediastinum, pleural, and pericardial cavities are contained within the", opts: ["abdominal cavity", "thoracic cavity", "pelvic cavity", "cranial cavity"], ans: 1 },
+    { q: "The surgeon ______ the operation tomorrow at 9 a.m.", opts: ["performs", "will perform", "is going to perform", "performed"], ans: 1 },
+    { q: "Cord-like structures charged with attaching bones to bones", opts: ["ligaments", "tendon", "cartilage", "fascia"], ans: 0 },
+    { q: "He ______ this book by the time his friend arrived.", opts: ["read", "had read", "reads", "was reading"], ans: 1 },
+    { q: "Heart valve that prevents backflow from the aorta to the left ventricle", opts: ["Aortic valve", "Semilunar valves", "PR intervalre", "Mitral valve"], ans: 0 },
+    { q: "By the time we arrived at the clinic, the doctor ______ already ______ the first patient.", opts: ["has examined", "had examined", "was examining", "examined"], ans: 1 },
+    { q: "Covers organs and lines cavities, absorbing, secreting, and protecting.", opts: ["Upper limb bones", "Parietal bones", "Gliding joints", "Epithelial tissue"], ans: 3 },
+    { q: "By the time we arrived at the hospital, the surgeon ______ already ______ the operation.", opts: ["had started", "has started", "was starting", "started"], ans: 0 },
+    { q: "What is contained in the cranial cavity?", opts: ["Brain", "Heart", "Kidney", "Skin"], ans: 0 },
+    { q: "She ______ as a pediatrician for over ten years before she decided to specialize in cardiology.", opts: ["worked", "had been working", "has worked", "was working"], ans: 1 },
+    { q: "Protein that transports oxygen on red blood cells", opts: ["hematocrit", "hemoglobin", "thrombocytes", "plasma"], ans: 1 },
+    { q: "If I ______ you, I would consult a specialist.", opts: ["am", "was", "were", "will be"], ans: 2 },
+    { q: "A group of several different kinds of tissues arranged to perform a special function", opts: ["Cells", "Organ", "Sensor", "Muscle"], ans: 1 },
+    { q: "This new treatment is ______ than the previous one.", opts: ["effective", "more effective", "most effective", "as effective"], ans: 1 },
+    { q: "The structure that controls the movement of materials into and out of cells is the", opts: ["nucleus", "cytoplasm", "plasma membrane", "endoplasmic reticulum"], ans: 2 },
+    { q: "These medicines ______ only by prescription.", opts: ["sell", "sold", "are sold", "were selling"], ans: 2 },
+    { q: "The 8 bones that make up the wrist.", opts: ["Patella", "Nasal bones", "Organs", "Carpals"], ans: 3 },
+    { q: "The X-ray ______ this morning.", opts: ["was taken", "takes", "is taking", "has taken"], ans: 0 },
+    { q: "An aggregation of similar cells that join to perform a specific function.", opts: ["Organism", "Molecule", "System", "Tissue"], ans: 3 },
+    { q: "They ______ their exams by next week.", opts: ["will have taken", "are taking", "take", "will take"], ans: 0 },
+    { q: "Carries out higher mental processes such as thinking, decision making, and planning. (This is where our personality is formed", opts: ["frontal lobe", "temporal lobe", "parietal lobe", "occipital lobe"], ans: 0 },
+    { q: "The patient complained of ______ in the chest.", opts: ["pain", "health", "recovery", "wellness"], ans: 0 },
+    { q: "The system of the body that helps you breathe", opts: ["Nervous system", "Respiratory system", "Circulatory system", "Skeletal system"], ans: 1 },
+    { q: "She ______ her medical degree in 2020.", opts: ["has received", "received", "receives", "was receiving"], ans: 1 },
+    { q: "A/An ________ consists of a group of similar cells performing similar functions.", opts: ["organ", "tissue", "molecule", "organelle"], ans: 1 },
+    { q: "You ______ consult your doctor before starting any new treatment.", opts: ["should", "could", "would", "shall"], ans: 0 },
+    { q: "Digestion breaks down complex molecules into simpler molecules. Select the term that best describes this process.", opts: ["Anabolism", "Catabolism", "Homeostasis", "Negative Feedback"], ans: 1 },
+    { q: "The pharmacist gave the patient a ______ for antibiotics.", opts: ["receipt", "prescription", "bill", "menu"], ans: 1 },
+    { q: "Brain and spinal cord.", opts: ["Central Nervous System", "Sympathetic Nervous System", "Sensory Nervous System", "Peripheral Nervous System"], ans: 0 },
+    { q: "Patients ______ take their medication at the same time every day.", opts: ["must", "can", "may", "might"], ans: 0 },
+    { q: "Mitotic cell division produces _____ daughter cells with ________ chromosome content as the parent cell.", opts: ["two; different", "four; different", "four; identical", "two; identical"], ans: 3 },
+    { q: "My colleague ______ research on infectious diseases at the moment.", opts: ["conducts", "is conducting", "conducted", "will conduct"], ans: 1 },
+    { q: "Epithelial, Connective, Nervous, and muscular", opts: ["Types of jobs", "Types of cells", "Types of tissues", "Types of organs"], ans: 2 },
+    { q: "While the surgeon ______ the operation, the nurses ______ the instruments.", opts: ["performed / sterilized", "was performing / were sterilizing", "had performed / had sterilized", "performs / sterilize"], ans: 1 },
+    { q: "The second essential transportation system, this network of fluid, called lymph, serves to defend against infection, maintain fluid balance, and remove waste products.", opts: ["lymphatic system", "urinary system", "cardiovascular system", "integumentary system"], ans: 0 },
+    { q: "The surgeon ______ the operation two hours ago.", opts: ["has completed", "completed", "completes", "was completing"], ans: 1 },
+    { q: "The most superior part of the respiratory tract. It extends from the vestibule to the nasopharynx.", opts: ["Oral Cavity", "Thoracic Cavity", "Nasal Cavity", "Pharynx"], ans: 2 },
+    { q: "Platelets are made of this", opts: ["multiple cells", "cells with no nuclei", "whole cells", "fragments or parts of cells"], ans: 3 },
+    { q: "What is the function of the respiratory system?", opts: ["To transport nutrients to the body's tissues.", "To filter toxins from the blood and produce urine.", "To supply oxygen to the blood and remove carbon dioxide.", "To regulate blood pressure and heart rate."], ans: 2 },
+    { q: "The lab ______ the test results; we'll get them tomorrow.", opts: ["received", "has received", "receives", "had received"], ans: 1 },
+    { q: "A structure that is composed of different kinds of tissues that work together.", opts: ["Organ", "Cell", "System", "Muscle"], ans: 0 },
+    { q: "Nurses ______ administer emergency medication in critical situations.", opts: ["can", "mustn't", "ought not to", "will"], ans: 0 },
+    { q: "Includes the brain, spinal cord, & peripheral nerves", opts: ["Nervous System", "Skeletal System", "Muscular System", "Digestive System"], ans: 0 },
+    { q: "Organs that help the body exchange oxygen and carbon dioxide with the air outside the body", opts: ["Lungs", "Heart", "Liver", "Kidney"], ans: 0 },
+    { q: "The doctor diagnosed ______ based on the X-ray results.", opts: ["a fracture", "a promotion", "a holiday", "a meeting"], ans: 0 },
+    { q: "The patient ______ to the intensive care unit right now.", opts: ["transfers", "transferred", "is transferring", "is being transferred"], ans: 3 },
+    { q: "The network of membranes that provide channels for the movement of materials throughout the cytoplasm is the", opts: ["mitochondria", "golgi complex", "lysosomes", "endoplasmic reticulum"], ans: 3 },
+    { q: "The patient ______ discharged from the hospital tomorrow.", opts: ["will be", "is going to be", "is being", "was"], ans: 0 },
+    { q: "What can cause diseases related to asbestos and smoking?", opts: ["Respiratory diseases, including lung cancer", "Neurological conditions, including Alzheimer's disease", "Cardiovascular diseases, including heart failure", "Digestive disorders, including stomach ulcers"], ans: 0 },
+    { q: "This new treatment _______ promising results in clinical trials, but we need more data.", opts: ["shows", "is showing", "has shown", "showed"], ans: 2 },
+    { q: "What is the role of the skeletal system?", opts: ["To transport oxygen and nutrients", "To filter blood", "To protect and support body", "To regulate hormone production"], ans: 2 },
+    { q: "We ______ the results of the analysis by the end of the week.", opts: ["receive", "will have received", "are receiving", "received"], ans: 1 },
+    { q: "Mitosis is division of the _______ and forms _____ cells after cytokinesis.", opts: ["cytoplasm; 2", "nucleus; 2", "cytoplasm; 4", "nucleus; 4"], ans: 1 },
+    { q: "By the time we realized the mistake, the patient ______ already ______ the wrong medication.", opts: ["had taken", "has taken", "was taking", "took"], ans: 0 },
+    { q: "What are the functions of skeletal muscle?", opts: ["Maintains posture and balance without conscious effort", "Allows for voluntary movement of the body", "Regulates involuntary movements of internal organs", "Controls automatic reflexes and responses"], ans: 1 },
+    { q: "I think this new treatment ______ effective.", opts: ["is", "will be", "be", "has been"], ans: 1 },
+    { q: "What is contained in the vertebral canal?", opts: ["Brain", "Lungs", "Brainstem", "Spinal Cord"], ans: 3 },
+    { q: "What type of tissue covers all free body surfaces?", opts: ["Epithelial tissue.", "Muscle tissue.", "Connective tissue.", "Nervous tissue."], ans: 0 },
+    { q: "This symptom ______ be a sign of dehydration, but we need to run more tests.", opts: ["might", "must", "can't", "shall"], ans: 0 },
+    { q: "Protein that transports oxygen on red blood cells", opts: ["hematocrit", "hemoglobin", "thrombocytes", "plasma"], ans: 1 },
+    { q: "The patient's blood pressure ______ every hour.", opts: ["checks", "is checked", "checking", "are checked"], ans: 1 },
+    { q: "Produces red and white blood cells.", opts: ["Yellow Marrow", "Liver", "Spleen", "Red Marrow"], ans: 3 },
+    { q: "Controls growth, development, and metabolism; maintains homeostasis.", opts: ["Muscular System", "Respiratory System", "Integumentary System", "Endocrine System"], ans: 3 },
+    { q: "She ______ this medication before, so she knows its side effects.", opts: ["took", "takes", "has taken", "is taking"], ans: 2 },
+    { q: "This chamber sends blood to the body cells", opts: ["left atria", "left ventricle", "right ventricle", "right atria"], ans: 1 },
+    { q: "Elastic connective tissue that covers the end of the bones and functions as a cushion between bones. Cartilage also covers the surface of joints and forms the flexible parts of the nose.", opts: ["Bone", "Ligaments", "Cartilage", "Muscle"], ans: 2 },
+    { q: "The doctor ______ you after the meeting.", opts: ["will see", "is seeing", "sees", "saw"], ans: 0 },
+    { q: "All medical staff ______ wear identification badges in the hospital.", opts: ["have to", "may", "could", "would"], ans: 0 },
+    { q: "Alpha cells produce glucogon; beta cells produce insulin; delta cells produce somatostatin", opts: ["hormones produced by liver", "hormones produced by the pituitary gland", "hormones produced by stomach", "hormones produced by pancreas"], ans: 3 },
+    { q: "The patient's blood pressure ______ every morning by the nurse.", opts: ["is checked", "checks", "was checking", "will check"], ans: 0 },
+    { q: "A system made up of muscles and the tissues that attach them to bones", opts: ["Circulatory system", "Nervous system", "Muscular system", "Respiratory system"], ans: 2 },
+    { q: "Blood samples ______ to the lab every morning.", opts: ["are sent", "were sent", "send", "have sent"], ans: 0 },
+    { q: "Large bone of lower leg; proximally medial condyle and medial mallaeus distally (big toe side)", opts: ["Fibula", "Calcaneus", "Tibia", "Femur"], ans: 2 },
+    { q: "These medicines ______ by a qualified pharmacist.", opts: ["must be prescribed", "must prescribe", "must have prescribed", "must be prescribing"], ans: 0 },
+    { q: "End of the small intestine, absorbs nutrients", opts: ["Ileum", "Cecum", "Duodenum", "Jejunum"], ans: 0 },
+    { q: "You ______ wash your hands before examining a patient.", opts: ["must", "can", "may", "might"], ans: 0 },
+    { q: "Central Nervous system", opts: ["Consists of the autonomic and somatic nervous systems", "Consists of the brain and the peripheral nerves", "Consists of the cranial and spinal nerves", "Consists of the brain and spinal cord"], ans: 3 },
+    { q: "I ______ dinner when the phone rang, but I didn't answer it.", opts: ["cooked", "was cooking", "have cooked", "cook"], ans: 1 },
+    { q: "The body system in which oxygen is brought into the body and carbon dioxide is released; major", opts: ["Skeletal System", "Digestive System", "Respiratory system", "Nervous system"], ans: 2 },
+    { q: "The lab ______ the test results; we'll get them tomorrow.", opts: ["received", "has received", "receives", "had received"], ans: 1 },
+    { q: "The windpipe, which serves as a passageway for air. At its distal end, it splits to form the right and left bronchi.", opts: ["Trachea", "Esophagus", "Pharynx", "Sinuses"], ans: 0 },
+    { q: "Clump together to form clots when a blood vessel is damaged and aid in preventing loss of blood.", opts: ["Platelets", "Lymphocytes", "Plasma", "Leukocytes"], ans: 0 },
+    { q: "This symptom ______ indicate a serious condition; we need more tests.", opts: ["might", "must", "can't", "shall"], ans: 0 },
+    { q: "Cells that fight infections", opts: ["platelets", "white blood cells", "thrombocytes", "hemoglobin"], ans: 1 },
+    { q: "The nurse applied a ______ to stop the bleeding.", opts: ["plaster", "thermometer", "syringe", "scalpel"], ans: 0 },
+    { q: "Made up of all the bones in your body", opts: ["Skin", "Brain", "Muscle", "Skeleton"], ans: 3 },
+    { q: "The team ______ a new treatment for diabetes recently.", opts: ["developed", "has developed", "develops", "is developing"], ans: 1 },
+    { q: "Controls your logic, decision making, concentration, and personality", opts: ["Frontal Lobe", "Temporal Lobe", "Parietal Lobe", "Occipital Lobe"], ans: 0 },
+    { q: "The patient ______ take these pills twice a day.", opts: ["should", "could", "would", "shall"], ans: 0 },
+    { q: "Keep blood from flowing backwards; located between chambers and at the entrance to great vessels", opts: ["Tarsals", "Carpals", "Valves", "Pulse"], ans: 2 },
+    { q: "Before the conference starts, Dr. Smith ___ (review) all the case studies.", opts: ["reviews", "will review", "will have reviewed", "reviewed"], ans: 2 },
+    { q: "Division of the anterior (ventral) cavity that houses the heart, lungs, esophagus, and trachea", opts: ["Pelvic Cavity", "Nasal Cavity", "Thoracic Cavity", "Abdominal Cavity"], ans: 2 },
+    { q: "The researchers ______ (publish) their findings by the end of the year.", opts: ["publish", "will publish", "will have published", "have published"], ans: 2 },
+    { q: "A group of organs including stomach, intestines, and liver working together to convert food into energy and basic nutrients to feed the entire body", opts: ["Respiratory system", "Skeletal system", "Digestive system", "Nervous system"], ans: 2 },
+    { q: "By next month, the patient ____(complete) the full course of antibiotics.", opts: ["will complete", "will have completed", "completes", "completed"], ans: 1 },
+    { q: "Blood goes from the right ventricle to this location", opts: ["body cells", "left atrium", "kidneys", "lungs"], ans: 3 },
+    { q: "This new treatment method ______ last year by a team of researchers.", opts: ["discovers", "was discovered", "is discovering", "has discovered"], ans: 1 },
+    { q: "A system made up of bones that support your body and help you move", opts: ["Muscular system", "Skeletal system", "Respiratory system", "Integumentary system"], ans: 1 },
+    { q: "If the symptoms ______ worse, we would have called an ambulance.", opts: ["get", "got", "had got", "would get"], ans: 2 },
+    { q: "A group of different tissues that join together into one structure", opts: ["Cell", "Brain", "Muscle", "Organ"], ans: 3 },
+    { q: "This antibiotic is ______ powerful of all we've tried.", opts: ["more", "most", "the more", "the most"], ans: 3 },
+    { q: "What does the cardiovascular system do?", opts: ["Supports body structure and movement", "Regulates hormone production and secretion", "Controls sensory information and reflexes", "Transports nutrients and oxygen to cells and removes waste products"], ans: 3 },
+    { q: "Produces insulin which controls blood sugar", opts: ["Liver", "Pancreas", "Stomach", "Spleen"], ans: 1 },
+    { q: "The patient's condition ______ carefully monitored during the treatment.", opts: ["is being", "has been", "is", "will be"], ans: 3 },
+    { q: "Cells that fight infections", opts: ["platelets", "white blood cells", "thrombocytes", "hemoglobin"], ans: 1 },
+    { q: "The doctor ______ the patient's condition this morning.", opts: ["has checked", "checked", "checks", "was checking"], ans: 1 },
+    { q: "White blood cells are part of this body system", opts: ["immune", "metabolic", "cardiovascular", "gastrointestinal"], ans: 0 },
+    { q: "While the team ___the emergency procedure, the power suddenly ______.", opts: ["performed / went out", "was performing / went out", "had performed / goes out", "performs / is going out"], ans: 1 },
+    { q: "Groups of organs are known as...", opts: ["Organ Systems", "Organisms", "Organelles", "Molecules"], ans: 0 },
+    { q: "She ______ as a surgeon for over 15 years before she decided to teach at the medical school.", opts: ["worked", "had been working", "has worked", "was working"], ans: 1 },
+    { q: "....is located in the upper-left area of the abdomen just under the diaphragm.", opts: ["Esophagus", "Spleen", "Liver", "Kidney"], ans: 1 },
+    { q: "The body system that protects and supports the body", opts: ["Respiratory System", "Nervous System", "Digestive System", "Skeletal System"], ans: 3 },
+    { q: "I______ this medication for three weeks, but I still don't feel better.", opts: ["take", "have been taking", "took", "am taking"], ans: 1 },
+    { q: "Deoxygenated blood enters the heart through this chamber", opts: ["right ventricle", "left ventricle", "right atrium", "left atrium"], ans: 2 },
+    { q: "He ______ the newspaper every morning since he moved here.", opts: ["reads", "has been reading", "read", "was reading"], ans: 1 },
+    { q: "What is the function of the integumentary (покровная) system?", opts: ["Transports nutrients and oxygen throughout the body", "Protects the body and includes skin, hair, and nails", "Regulates body temperature and fluid balance", "Supports body movement and posture"], ans: 1 },
+    { q: "All medical records ______ in a secure database.", opts: ["keep", "are kept", "kept", "were keeping"], ans: 1 },
+    { q: "What is the primary function of the respiratory system?", opts: ["Regulates body temperature and fluid balance", "Transports nutrients and hormones throughout the body", "Allows for gas exchange, intake of oxygen, and removal of carbon dioxide", "Filters blood and removes waste products"], ans: 2 },
+    { q: "These medicines ______ in the local pharmacy.", opts: ["buy", "are bought", "were bought", "have bought"], ans: 1 },
+    { q: "Capillaries are vessels used to exchange these", opts: ["only nutrients and oxygen", "only carbon dioxide & oxygen", "only oxygen", "oxygen, waste products, & nutrients"], ans: 3 },
+    { q: "Last year, they ______ a breakthrough in cancer treatment.", opts: ["have made", "made", "make", "were making"], ans: 1 },
+    { q: "These take blood away from heart", opts: ["arterioles", "veins", "capillaries", "arteries"], ans: 3 },
+    { q: "The wound ______ carefully at the moment.", opts: ["is being treated", "treats", "was treated", "will be treated"], ans: 0 },
+    { q: "Name of platelets", opts: ["monocytes", "leukocytes", "thrombocytes", "lymphocytes"], ans: 2 },
+    { q: "Don't worry, I ______ you with the report.", opts: ["help", "am helping", "will help", "have helped"], ans: 2 },
+    { q: "Which abdominal quadrant would a patient most likely complain of pain​ in, with inflammation​ of, the​ gallbladder?", opts: ["left upper", "right upper", "right middle", "left lower"], ans: 1 },
+    { q: "Doctors ______ diagnose diseases accurately.", opts: ["can", "ought", "need", "will"], ans: 0 },
+    { q: "Located within the skull and contains the brain", opts: ["Cranial Cavity", "Dorsal Cavity", "Mediastinum", "Ventral Cavity"], ans: 0 },
+    { q: "They ______ the results by next week.", opts: ["will receive", "are receiving", "receive", "have received"], ans: 0 },
+    { q: "Basic unit of structure and function in living things", opts: ["Organ", "System", "Cell", "Atom"], ans: 2 },
+    { q: "This vaccine ______ last year.", opts: ["was developed", "developed", "is developed", "has developed"], ans: 0 },
+    { q: "An organ that covers and protects the body and releases wastes from the blood through sweat glands.", opts: ["Lungs", "Skin", "Heart", "Liver"], ans: 1 },
+    { q: "She will recover quickly if she ______ the treatment properly.", opts: ["follows", "followed", "will follow", "had followed"], ans: 0 },
+    { q: "A body system that breaks down food into very small parts that the body can use.", opts: ["Respiratory system", "Skeletal system", "Nervous system", "Digestive system"], ans: 3 },
+    { q: "A tissue is:", opts: ["an organ with specific functions", "organs grouped together", "the structural and functional units of the body", "a group of cells that perform similar functions"], ans: 3 },
+    { q: "The lowest level of organization in the body is the ________ level.", opts: ["organ", "tissue", "chemical", "cellular"], ans: 2 },
+    { q: "If the patient ______ the medication, he will recover faster.", opts: ["takes", "took", "had taken", "will take"], ans: 0 },
+    { q: "A body system that moves blood through the body and includes the heart, blood and blood vessels.", opts: ["Respiratory system", "Circulatory system", "Skeletal system", "Muscular system"], ans: 1 },
+    { q: "A set of things that work together as a whole", opts: ["Tissue", "System", "Cell", "Organ"], ans: 1 },
+    { q: "Located at the front of the body; consists of the thoracic and abdominopelvic cavities", opts: ["Cranial cavity", "Ventral cavity", "Dorsal cavity", "Mediastinum"], ans: 1 },
+    { q: "Nurses ______ wear uniforms in this hospital.", opts: ["have to", "may", "could", "would"], ans: 0 },
+    { q: "Cell fragments needed for blood clotting.", opts: ["Erythrocytes", "Platelets", "Leukocytes", "Plasma"], ans: 1 },
+    { q: "Hemoglobin turns blood this color", opts: ["green", "blue", "red", "white"], ans: 2 },
+    { q: "Middle layer of the cell", opts: ["mesoderm", "ectoderm", "endoderm", "neuroectoderm"], ans: 0 },
+    { q: "A body system that moves blood through the body and includes the heart, blood and blood vessels.", opts: ["Respiratory system", "Circulatory system", "Skeletal system", "Muscular system"], ans: 1 },
+    { q: "The pain in his chest was ______ severe than he had expected.", opts: ["less", "least", "as", "very"], ans: 0 },
+    { q: "The term used to describe something pertaining to the internal organs is", opts: ["visceral", "proximal", "peripheral", "deep"], ans: 0 },
+    { q: "The cellular structure that is composed mostly of a lipid bilayer with imbedded proteins is the:", opts: ["nucleus", "plasma membrane", "cytoplasm", "nucleolus"], ans: 1 },
+    { q: "The sacral region of the spinal cord is located", opts: ["between the hips", "above the thoracic region", "directly below the cervical region", "between the thoracic and lumbar regions"], ans: 0 },
+    { q: "What does the orbital cavity​ contain?", opts: ["nose", "eyes", "lungs", "hands"], ans: 1 },
+    { q: "A body system that removes waste from the blood", opts: ["Muscular system", "Respiratory system", "Excretory system", "Circulatory system"], ans: 2 },
+    { q: "Produces the hormone melatonin, which increases at night and decreases during the day", opts: ["Endocrine glands", "Muscle cells", "Pineal gland", "Microvilli"], ans: 2 }
+];
+
+const container = document.getElementById('questions-container');
+const userAnswers = {};
+const questionStates = {};
+
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function renderQuestions() {
+    container.innerHTML = '';
+    questions.forEach((item, idx) => {
+        const opts = item.opts.map((o, oi) => ({ text: o, origIdx: oi }));
+        const origCorrect = item.ans;
+        shuffleArray(opts);
+        const newCorrect = opts.findIndex(o => o.origIdx === origCorrect);
+        const letters = 'abcd'.split('');
+
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        block.id = 'q-block-' + idx;
+        block.dataset.correct = JSON.stringify(newCorrect);
+        block.dataset.multi = false;
+        block.innerHTML = `
+            <div class="q-text"><span class="q-num">${idx + 1}.</span>${item.q}</div>
+            <div class="options">
+                ${opts.map((o, oi) => `
+                    <label class="option" data-q="${idx}" data-o="${oi}">
+                        <input type="radio" name="q${idx}" value="${oi}">
+                        <span class="option-letter">${letters[oi]}</span>
+                        <span class="option-text">${o.text}</span>
+                    </label>
+                `).join('')}
+            </div>
+            <div class="feedback" id="fb-${idx}"></div>
+        `;
+        container.appendChild(block);
+    });
+
+    document.querySelectorAll('.option').forEach(opt => {
+        opt.addEventListener('click', function(e) {
+            const qIdx = parseInt(this.dataset.q);
+            const oIdx = parseInt(this.dataset.o);
+            const block = document.getElementById('q-block-' + qIdx);
+            const correctAns = JSON.parse(block.dataset.correct);
+
+            block.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            userAnswers[qIdx] = oIdx;
+            checkSingleQuestion(qIdx, block, correctAns, false);
+        });
+    });
+}
+
+function checkSingleQuestion(idx, block, correctAns, isMulti) {
+    const fb = document.getElementById('fb-' + idx);
+    block.querySelectorAll('.option').forEach(o => o.classList.remove('correct-highlight'));
+
+    if (userAnswers[idx] === undefined) {
+        fb.classList.remove('show', 'correct-fb', 'incorrect-fb');
+        block.classList.remove('correct', 'incorrect');
+        questionStates[idx] = 'unanswered';
+    } else if (userAnswers[idx] === correctAns) {
+        fb.textContent = '✅ Correct!';
+        fb.className = 'feedback show correct-fb';
+        block.classList.add('correct');
+        block.classList.remove('incorrect');
+        questionStates[idx] = 'correct';
+    } else {
+        fb.textContent = '❌ Incorrect. Correct answer is highlighted in green.';
+        fb.className = 'feedback show incorrect-fb';
+        block.classList.add('incorrect');
+        block.classList.remove('correct');
+        questionStates[idx] = 'incorrect';
+        const optEl = block.querySelector(`.option[data-o="${correctAns}"]`);
+        if (optEl) optEl.classList.add('correct-highlight');
+    }
+
+    updateGlobalScore();
+}
+
+function updateGlobalScore() {
+    const total = questions.length;
+    let correct = 0;
+    for (let i = 0; i < total; i++) {
+        if (questionStates[i] === 'correct') correct++;
+    }
+    document.getElementById('global-result').textContent =
+        `Score: ${correct} out of ${total} (${Math.round(correct/total*100)}%)`;
+}
+
+function resetAll() {
+    for (const key in userAnswers) delete userAnswers[key];
+    for (const key in questionStates) delete questionStates[key];
+    document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.checked = false;
+    });
+    document.querySelectorAll('.option').forEach(o => {
+        o.classList.remove('selected', 'correct-highlight');
+    });
+    document.querySelectorAll('.question-block').forEach(b => b.classList.remove('correct', 'incorrect'));
+    document.querySelectorAll('.feedback').forEach(f => f.className = 'feedback');
+    updateGlobalScore();
+}
+
+renderQuestions();
+</script>
+</body>
+</html>
