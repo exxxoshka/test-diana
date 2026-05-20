@@ -10,15 +10,17 @@
         .container { text-align: center; padding: 40px 20px; }
         h1 { color: #fff; font-size: 42px; margin-bottom: 10px; }
         .subtitle { color: #a0c4e8; font-size: 18px; margin-bottom: 50px; }
-        .cards { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; max-width: 900px; margin: 0 auto; }
-        .card { background: #fff; border-radius: 16px; padding: 40px 30px; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: 0.3s; cursor: pointer; text-decoration: none; color: #2d3748; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .cards { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; max-width: 1000px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 16px; padding: 40px 30px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: 0.3s; cursor: pointer; text-decoration: none; color: #2d3748; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .card-icon { font-size: 56px; }
-        .card h2 { font-size: 24px; color: #1a365d; }
+        .card h2 { font-size: 22px; color: #1a365d; }
         .card p { color: #718096; font-size: 14px; line-height: 1.5; }
         .card .badge { background: #3182ce; color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
-        .card.anatomy .badge { background: #e53e3e; }
+        .card.pharma .badge { background: #3182ce; }
         .card.english .badge { background: #38a169; }
+        .card.anatomy .badge { background: #e53e3e; }
+        .card.bioorganic .badge { background: #7c3aed; }
     </style>
 </head>
 <body>
@@ -27,7 +29,7 @@
     <p class="subtitle">Выберите предмет для тестирования</p>
     <div class="cards">
         <!-- Фармацевтика -->
-        <a href="part1.html" class="card">
+        <a href="part1.html" class="card pharma">
             <div class="card-icon">💊</div>
             <h2>Фармацевтика</h2>
             <p>Латинская терминология, рецептура, химические соединения</p>
@@ -40,12 +42,19 @@
             <p>Medical terminology, grammar, body systems</p>
             <span class="badge">200 вопросов</span>
         </a>
-        <!-- Анатомия (заглушка) -->
+        <!-- Анатомия -->
         <a href="anatomy_part1.html" class="card anatomy">
             <div class="card-icon">🦴</div>
             <h2>Анатомия</h2>
             <p>Анатомия человека, кости, мышцы, органы</p>
             <span class="badge">5 частей • 1100 вопросов</span>
+        </a>
+        <!-- Биоорганика -->
+        <a href="bioorganic_part1.html" class="card bioorganic">
+            <div class="card-icon">🧬</div>
+            <h2>Биоорганика</h2>
+            <p>Биоорганическая химия, структура и функции биомолекул</p>
+            <span class="badge">4 части • 819 вопросов</span>
         </a>
     </div>
 </div>
